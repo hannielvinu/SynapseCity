@@ -8,12 +8,20 @@ interface AIAgentsPageProps {
   emergencyUnits?: EmergencyUnit[];
   incidents?: IncidentItem[];
   nodes?: IntersectionNode[];
+  agents?: any[];
+  agentLogs?: any[];
 }
 
-export const AIAgentsPage: React.FC<AIAgentsPageProps> = ({ emergencyUnits, incidents, nodes }) => {
-  const [selectedAgentId, setSelectedAgentId] = useState<string>(INITIAL_AGENTS[0].id);
+export const AIAgentsPage: React.FC<AIAgentsPageProps> = ({ 
+  emergencyUnits, 
+  incidents, 
+  nodes, 
+  agents = INITIAL_AGENTS, 
+  agentLogs = INITIAL_AGENT_LOGS 
+}) => {
+  const [selectedAgentId, setSelectedAgentId] = useState<string>(agents[0]?.id || INITIAL_AGENTS[0].id);
 
-  const selectedAgent = INITIAL_AGENTS.find(a => a.id === selectedAgentId) || INITIAL_AGENTS[0];
+  const selectedAgent = (agents.find(a => a.id === selectedAgentId) || agents[0] || INITIAL_AGENTS[0]) as any;
 
   const activeEmergencies = emergencyUnits?.filter(u => u.greenWaveActive) || [];
   const activeIncidents = incidents?.filter(i => i.status !== 'resolved') || [];
@@ -23,7 +31,7 @@ export const AIAgentsPage: React.FC<AIAgentsPageProps> = ({ emergencyUnits, inci
       <PageHeader
         title="Multi-Agent AI Mesh Operations"
         subtitle="Distributed reinforcement learning agents performing cooperative game-theoretic signal negotiation and global grid equilibrium."
-        badgeText="142 ACTIVE AGENTS"
+        badgeText={`${agents.length} ACTIVE AGENTS`}
         badgeType="cyan"
       />
 
@@ -38,8 +46,8 @@ export const AIAgentsPage: React.FC<AIAgentsPageProps> = ({ emergencyUnits, inci
             <span className="text-[10px] text-emerald-400 font-mono font-bold">100% ONLINE</span>
           </div>
 
-          <div className="space-y-2.5">
-            {INITIAL_AGENTS.map((agent) => {
+          <div className="space-y-2.5 max-h-[500px] overflow-y-auto custom-scrollbar">
+            {agents.map((agent) => {
               const isSelected = agent.id === selectedAgent.id;
               return (
                 <div
@@ -71,7 +79,11 @@ export const AIAgentsPage: React.FC<AIAgentsPageProps> = ({ emergencyUnits, inci
               <div>
                 <div className="flex items-center gap-2">
                   <h3 className="text-lg font-extrabold text-white">{selectedAgent.name}</h3>
-                  <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                    selectedAgent.status === 'warning' ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' :
+                    selectedAgent.status === 'optimizing' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' :
+                    'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                  }`}>
                     {selectedAgent.status}
                   </span>
                 </div>
@@ -92,7 +104,7 @@ export const AIAgentsPage: React.FC<AIAgentsPageProps> = ({ emergencyUnits, inci
               </div>
               <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
                 <span className="text-slate-400 block mb-1">Decision Accuracy</span>
-                <span className="text-lg font-extrabold font-mono text-emerald-300">{selectedAgent.accuracyRate}%</span>
+                <span className="text-lg font-extrabold font-mono text-emerald-300">{selectedAgent.accuracyRate ? selectedAgent.accuracyRate.toFixed(1) : 98}%</span>
               </div>
               <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
                 <span className="text-slate-400 block mb-1">Last Action</span>
@@ -100,47 +112,53 @@ export const AIAgentsPage: React.FC<AIAgentsPageProps> = ({ emergencyUnits, inci
               </div>
             </div>
 
+            {/* Agent Inputs & Outputs Inspector (AI Explainability) */}
+            {selectedAgent.inputs && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs">
+                  <h4 className="font-bold text-slate-300 uppercase tracking-wider mb-2 text-[10px]">Active Inputs Analyzed</h4>
+                  <div className="space-y-1.5 font-mono text-slate-400">
+                    <div className="flex justify-between"><span>Density Score:</span><span className="text-cyan-400">{selectedAgent.inputs.density}%</span></div>
+                    <div className="flex justify-between"><span>Queue Length:</span><span className="text-amber-400">{selectedAgent.inputs.queueLength} cars</span></div>
+                    <div className="flex justify-between"><span>Current Phase:</span><span className="text-slate-300 truncate max-w-[150px]">{selectedAgent.inputs.currentPhase}</span></div>
+                    <div className="flex justify-between"><span>Emergency Preemption:</span><span className={selectedAgent.inputs.emergencyActive ? "text-rose-400 font-bold" : "text-slate-500"}>{selectedAgent.inputs.emergencyActive ? "ACTIVE" : "FALSE"}</span></div>
+                  </div>
+                </div>
+                <div className="bg-slate-950 p-4 rounded-xl border border-cyan-500/20 text-xs">
+                  <h4 className="font-bold text-cyan-300 uppercase tracking-wider mb-2 text-[10px]">Action Recommendation Output</h4>
+                  {selectedAgent.outputs && (
+                    <div className="space-y-2">
+                      <div className="text-slate-200"><span className="text-slate-400 font-mono">Decision:</span> <strong className="text-emerald-400">{selectedAgent.outputs.recommendedPhase}</strong></div>
+                      <div className="text-slate-200"><span className="text-slate-400 font-mono">Timing:</span> <strong className="text-cyan-400">{selectedAgent.outputs.duration} seconds</strong></div>
+                      <div className="text-[11px] text-slate-400 italic">"{selectedAgent.outputs.reason}"</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Real-Time Agent Stream Logs */}
             <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-3">
               <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center justify-between">
                 <span className="flex items-center gap-2">
-                  <Terminal className="w-4 h-4 text-cyan-400" /> Agent Decision Log Stream
+                  <Terminal className="w-4 h-4 text-cyan-400" /> Event Bus Log Stream
                 </span>
                 <span className="text-[10px] text-cyan-400 font-mono animate-pulse">STREAMING LIVE</span>
               </h4>
 
-              <div className="space-y-2 text-xs font-mono">
-                {/* Dynamic logs based on live state */}
-                {activeEmergencies.map(unit => (
-                  <div key={`dynamic-em-${unit.id}`} className="p-2.5 rounded-lg bg-rose-950/40 border border-rose-500/40 space-y-1">
+              <div className="space-y-2 text-xs font-mono max-h-[300px] overflow-y-auto custom-scrollbar">
+                {agentLogs.map((log) => (
+                  <div key={log.id} className={`p-2.5 rounded-lg border space-y-1 ${
+                    log.type === 'warning' ? 'bg-amber-950/20 border-amber-500/20' :
+                    log.type === 'action' ? 'bg-cyan-950/20 border-cyan-500/20' :
+                    'bg-slate-900 border-slate-800/80'
+                  }`}>
                     <div className="flex items-center justify-between text-[10px]">
-                      <span className="text-rose-400 font-bold">Corridor-Green Sentinel</span>
-                      <span className="text-slate-400">Live Active</span>
-                    </div>
-                    <p className="text-slate-200 text-[11px]">
-                      Priority Lock Active: Holding green wave for {unit.callsign} ({unit.origin} → {unit.destination}). ETA: {unit.etaSeconds}s.
-                    </p>
-                    <div className="text-[10px] text-emerald-400 font-bold">Confidence: 100%</div>
-                  </div>
-                ))}
-
-                {activeIncidents.map(inc => (
-                  <div key={`dynamic-inc-${inc.id}`} className="p-2.5 rounded-lg bg-amber-950/40 border border-amber-500/40 space-y-1">
-                    <div className="flex items-center justify-between text-[10px]">
-                      <span className="text-amber-400 font-bold">Incident Response AI</span>
-                      <span className="text-slate-400">Active Alert</span>
-                    </div>
-                    <p className="text-slate-200 text-[11px]">
-                      {inc.title} @ {inc.location}: {inc.aiActionTaken}
-                    </p>
-                    <div className="text-[10px] text-amber-300 font-bold">Status: {inc.status}</div>
-                  </div>
-                ))}
-
-                {INITIAL_AGENT_LOGS.map((log) => (
-                  <div key={log.id} className="p-2.5 rounded-lg bg-slate-900 border border-slate-800/80 space-y-1">
-                    <div className="flex items-center justify-between text-[10px]">
-                      <span className="text-cyan-400 font-bold">{log.agentName}</span>
+                      <span className={`font-bold ${
+                        log.type === 'warning' ? 'text-amber-400' :
+                        log.type === 'action' ? 'text-cyan-400' :
+                        'text-slate-400'
+                      }`}>{log.agentName}</span>
                       <span className="text-slate-500">{log.timestamp}</span>
                     </div>
                     <p className="text-slate-300 text-[11px]">{log.message}</p>

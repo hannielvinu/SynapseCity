@@ -14,6 +14,21 @@ import {
   INITIAL_EMERGENCY_UNITS,
   INITIAL_INCIDENTS 
 } from '../data/mockData';
+import { 
+  AgentEventBus, 
+  CityCoordinatorAgent, 
+  IntersectionAgent, 
+  TrafficPredictionAgent, 
+  EmergencyAgent, 
+  RouteAgent, 
+  IncidentAgent,
+  SimulationAgent,
+  WeatherAgent,
+  LiveAgentLog,
+  AgentState
+} from './agentSystem';
+import { RoutingEngine } from './routingEngine';
+import { DeterministicDecisionProvider, AIProvider } from './aiProvider';
 
 export interface SimulatedVehicle {
   id: string;
@@ -37,6 +52,19 @@ export class TrafficEngine {
   private vehicles: SimulatedVehicle[];
   private metrics: CityMetrics;
   private simConfig: SimulationConfig;
+
+  // Agent Mesh
+  private bus = AgentEventBus.getInstance();
+  private coordinatorAgent = new CityCoordinatorAgent();
+  private predictionAgent = new TrafficPredictionAgent();
+  private emergencyAgent = new EmergencyAgent();
+  private routeAgent = new RouteAgent();
+  private incidentAgent = new IncidentAgent();
+  private simulationAgent = new SimulationAgent();
+  private weatherAgent = new WeatherAgent();
+  private intersectionAgents: { [id: string]: IntersectionAgent } = {};
+  
+  private aiProvider: AIProvider = new DeterministicDecisionProvider();
 
   constructor() {
     this.nodes = JSON.parse(JSON.stringify(INITIAL_INTERSECTIONS));
@@ -64,15 +92,19 @@ export class TrafficEngine {
       pedestrianSafetyScore: 98.6
     };
 
+    // Initialize Intersection Agents
+    this.nodes.forEach(node => {
+      this.intersectionAgents[node.id] = new IntersectionAgent(node.id, node.name);
+    });
+
     this.initializeVehicles();
   }
 
   private initializeVehicles() {
-    // Generate initial set of simulated vehicles
     let vehicleId = 1;
     for (const node of this.nodes) {
       for (const targetId of node.connectedNodes) {
-        const count = 4 + Math.floor(Math.random() * 6);
+        const count = 4 + Math.floor(Math.random() * 5);
         for (let i = 0; i < count; i++) {
           this.vehicles.push({
             id: `v-${vehicleId++}`,
@@ -92,6 +124,18 @@ export class TrafficEngine {
   }
 
   public getFullState() {
+    // Collect active agents list and states dynamically
+    const agentsList: AgentState[] = [
+      this.coordinatorAgent.getState(),
+      this.predictionAgent.getState(),
+      this.emergencyAgent.getState(),
+      this.routeAgent.getState(),
+      this.incidentAgent.getState(),
+      this.simulationAgent.getState(),
+      this.weatherAgent.getState(),
+      ...Object.values(this.intersectionAgents).map(a => a.getState())
+    ];
+
     return {
       nodes: this.nodes,
       cameraFeeds: this.cameraFeeds,
@@ -100,29 +144,51 @@ export class TrafficEngine {
       citizenReports: this.citizenReports,
       vehicles: this.vehicles,
       metrics: this.metrics,
-      simConfig: this.simConfig
+      simConfig: this.simConfig,
+      agents: agentsList,
+      agentLogs: this.bus.getLogs()
     };
   }
 
   public updateConfig(config: Partial<SimulationConfig>) {
     this.simConfig = { ...this.simConfig, ...config };
+    this.simulationAgent.process();
+    if (config.weather) {
+      this.weatherAgent.process();
+    }
   }
 
   public rebalanceNode(nodeId: string) {
+    const agent = this.intersectionAgents[nodeId];
+    if (agent) {
+      agent.evaluateSignalTiming({
+        density: 15, // Rebalance forces density lower
+        queueLength: 0,
+        currentPhase: 'N-S Straight & Left Protected',
+        weather: this.simConfig.weather,
+        emergencyActive: false,
+        predictedCongestionRisk: 'low'
+      });
+    }
+
     this.nodes = this.nodes.map(n => {
       if (n.id === nodeId) {
         return {
           ...n,
-          densityScore: Math.max(10, n.densityScore - 20),
-          aiConfidence: Math.min(99.9, n.aiConfidence + 2.0)
+          densityScore: Math.max(10, n.densityScore - 25),
+          aiConfidence: Math.min(99.9, n.aiConfidence + 2.0),
+          signalState: 'green'
         };
       }
       return n;
     });
+
+    this.bus.publish('signal.optimization', 'coordinator', { nodeId, mode: 'autonomous_ai' });
   }
 
   public updateNodeSignalMode(nodeId: string, mode: SignalMode) {
     this.nodes = this.nodes.map(n => (n.id === nodeId ? { ...n, signalMode: mode } : n));
+    this.bus.publish('signal.optimization', nodeId, { nodeId, mode });
   }
 
   public updatePhaseDuration(nodeId: string, duration: number) {
@@ -130,21 +196,32 @@ export class TrafficEngine {
   }
 
   public dispatchEmergency(unit: Omit<EmergencyUnit, 'id'>) {
+    const router = new RoutingEngine(this.nodes, this.incidents);
+    const route = router.calculateRoute(unit.origin, unit.destination, this.simConfig.weather);
+
     const newUnit: EmergencyUnit = {
       ...unit,
       id: `em-${Date.now()}`,
-      greenWaveActive: true
+      greenWaveActive: true,
+      pathNodeIds: route.pathNodeIds,
+      etaSeconds: route.etaSeconds,
+      timeSavedSeconds: 15
     };
     this.emergencyUnits.push(newUnit);
 
-    // Apply immediate overrides along path nodes
+    this.bus.publish('emergency.detected', 'emergency', newUnit);
+    this.bus.publish('emergency.route.created', 'router', { callsign: newUnit.callsign, pathNodeIds: route.pathNodeIds });
+
+    // Enable preemption lock on the first intersection node immediately
+    const firstNode = route.pathNodeIds[0];
     this.nodes = this.nodes.map(n => {
-      if (newUnit.pathNodeIds.includes(n.id)) {
+      if (n.id === firstNode) {
+        this.bus.publish('corridor.activated', 'emergency', { nodeId: n.id, callsign: newUnit.callsign });
         return {
           ...n,
           signalState: 'emergency_override',
           signalMode: 'emergency_corridor',
-          incidentAlert: `${newUnit.callsign} Priority Corridor Active`
+          incidentAlert: `${newUnit.callsign} Preemption Lock Active`
         };
       }
       return n;
@@ -167,13 +244,23 @@ export class TrafficEngine {
         }
         return n;
       });
+      this.bus.publish('incident.updated', 'emergency', { intersectionId: unitToClear.pathNodeIds[0], status: 'restored' });
     }
   }
 
   public resolveIncident(incidentId: string) {
+    const incident = this.incidents.find(i => i.id === incidentId);
     this.incidents = this.incidents.map(inc => 
       inc.id === incidentId ? { ...inc, status: 'resolved' } : inc
     );
+
+    if (incident) {
+      this.bus.publish('incident.updated', 'incident', { intersectionId: incident.intersectionId, status: 'resolved' });
+      // Reset signal state alert
+      this.nodes = this.nodes.map(n => 
+        n.id === incident.intersectionId ? { ...n, incidentAlert: undefined } : n
+      );
+    }
   }
 
   public addCitizenReport(report: Omit<CitizenReport, 'id' | 'reportNumber' | 'submittedAt' | 'status' | 'upvotes' | 'aiVerificationConfidence'>) {
@@ -186,23 +273,32 @@ export class TrafficEngine {
       upvotes: 1,
       aiVerificationConfidence: 94.5
     };
-    this.citizenReports.push(newReport);
+    this.citizenReports.unshift(newReport);
 
-    // Auto-spawn corresponding incident to show on map
-    const targetNode = this.nodes[Math.floor(Math.random() * this.nodes.length)];
-    this.incidents.push({
+    // AI assessment converting report to active incident
+    const matchedNode = this.nodes.find(n => n.name.toLowerCase().includes(report.locationName.toLowerCase())) || this.nodes[0];
+    
+    const newIncident: IncidentItem = {
       id: `inc-${Date.now()}`,
-      title: `Citizen: ${report.description}`,
+      title: `Reported: ${report.description}`,
       location: report.locationName,
-      intersectionId: targetNode.id,
+      intersectionId: matchedNode.id,
       severity: 'medium',
       category: 'debris',
       reportedAt: new Date().toLocaleTimeString(),
       status: 'detected',
-      aiActionTaken: 'Re-routing recommendations dispatched to adjacent lanes.',
+      aiActionTaken: 'Dynamic detours broadcast to adjacent route agents.',
       impactDelayMinutes: 5,
-      coordinates: { x: targetNode.x + 2, y: targetNode.y + 2 }
-    });
+      coordinates: { x: matchedNode.x + 1.5, y: matchedNode.y - 1.5 }
+    };
+    
+    this.incidents.unshift(newIncident);
+    this.bus.publish('incident.detected', 'incident', newIncident);
+
+    // Apply incident warning to the intersection
+    this.nodes = this.nodes.map(n => 
+      n.id === matchedNode.id ? { ...n, incidentAlert: report.description } : n
+    );
   }
 
   public tick() {
@@ -212,20 +308,86 @@ export class TrafficEngine {
                          this.simConfig.weather === 'dense_fog' ? 0.6 :
                          this.simConfig.weather === 'snow' ? 0.5 : 1.0;
 
-    // 1. Tick signal phases & state transitions
-    this.nodes = this.nodes.map(node => {
-      if (node.signalMode === 'manual_override') {
-        return node;
+    if (multiplier === 0) return; // Simulation paused
+
+    // 1. Update active emergency units progress & corridor advances
+    this.emergencyUnits = this.emergencyUnits.map(unit => {
+      if (unit.status !== 'en_route') return unit;
+
+      let nextProgress = unit.currentProgress + 2.5 * multiplier;
+      let status: 'dispatching' | 'en_route' | 'arrived' | 'cleared' = unit.status;
+      let waveActive = unit.greenWaveActive;
+
+      // Determine vehicle's position index in pathNodeIds
+      const segmentIndex = Math.min(
+        unit.pathNodeIds.length - 2, 
+        Math.floor((nextProgress / 100) * (unit.pathNodeIds.length - 1))
+      );
+      
+      const currentNodeId = unit.pathNodeIds[segmentIndex];
+      const nextNodeId = unit.pathNodeIds[segmentIndex + 1];
+
+      // Green wave lock advances: Unlock previous nodes, lock upcoming nodes
+      this.nodes = this.nodes.map(n => {
+        if (n.id === nextNodeId) {
+          // Lock upcoming
+          if (n.signalState !== 'emergency_override') {
+            this.bus.publish('corridor.activated', 'emergency', { nodeId: n.id, callsign: unit.callsign });
+          }
+          return {
+            ...n,
+            signalState: 'emergency_override',
+            signalMode: 'emergency_corridor',
+            incidentAlert: `${unit.callsign} Preemption Wave Active`
+          };
+        } else if (n.id === currentNodeId && nextProgress > 30) {
+          // Restore passed nodes back to normal
+          return {
+            ...n,
+            signalState: 'green',
+            signalMode: 'autonomous_ai',
+            incidentAlert: undefined
+          };
+        }
+        return n;
+      });
+
+      if (nextProgress >= 100) {
+        nextProgress = 100;
+        status = 'arrived';
+        waveActive = false;
+        // Restore all corridor nodes
+        this.nodes = this.nodes.map(n => {
+          if (unit.pathNodeIds.includes(n.id)) {
+            return {
+              ...n,
+              signalState: 'green',
+              signalMode: 'autonomous_ai',
+              incidentAlert: undefined
+            };
+          }
+          return n;
+        });
       }
+
+      return {
+        ...unit,
+        currentProgress: nextProgress,
+        status,
+        greenWaveActive: waveActive,
+        etaSeconds: Math.max(0, Math.floor((100 - nextProgress) * 1.8))
+      };
+    });
+
+    // 2. Tick intersection signal phases
+    this.nodes = this.nodes.map(node => {
+      if (node.signalMode === 'manual_override') return node;
 
       let remaining = node.phaseTimeRemaining - multiplier;
       let state = node.signalState;
       let phase = node.currentPhase;
 
-      if (node.signalState === 'emergency_override') {
-        // Keeps green lock for emergency corridor
-        return node;
-      }
+      if (node.signalState === 'emergency_override') return node; // Controlled by preemption
 
       if (remaining <= 0) {
         remaining = 25 + Math.floor(Math.random() * 15);
@@ -248,7 +410,7 @@ export class TrafficEngine {
       };
     });
 
-    // 2. Move simulated vehicles along road links
+    // 3. Move vehicles along road links
     this.vehicles = this.vehicles.map(veh => {
       const roadParts = veh.currentRoad.split('->');
       const originNode = this.nodes.find(n => n.id === roadParts[0]);
@@ -256,7 +418,6 @@ export class TrafficEngine {
 
       if (!originNode || !targetNode) return veh;
 
-      // Check if target intersection is red for vehicle's direction
       let isBlocked = false;
       const isApproachingEnd = veh.progress >= 90;
 
@@ -265,16 +426,14 @@ export class TrafficEngine {
         const signal = targetNode.signalState;
 
         if (signal === 'emergency_override') {
-          // If emergency corridor is on our node but we are NOT emergency vehicle, we are blocked
           if (veh.type !== 'emergency') {
             isBlocked = true;
           }
         } else if (signal === 'red') {
           isBlocked = true;
         } else if (signal === 'yellow') {
-          isBlocked = Math.random() > 0.5; // Amber dilemma zone
+          isBlocked = Math.random() > 0.5;
         } else {
-          // Green light. If it is green, N-S or E-W determines block
           const activePhaseIsNS = targetNode.currentPhase.includes('N-S');
           if (isNorthSouthRoad && !activePhaseIsNS) {
             isBlocked = true;
@@ -293,13 +452,11 @@ export class TrafficEngine {
         speed = 0;
       } else {
         newStatus = 'moving';
-        // Speed drops as target node congestion/density grows
-        const densityPenalty = 1 - (targetNode.densityScore / 150);
+        const densityPenalty = 1 - (targetNode.densityScore / 160);
         speed = Math.max(8, speed * densityPenalty);
         newProgress += (speed * 0.05 * multiplier);
       }
 
-      // If vehicle reaches end of link, route to next connected node
       if (newProgress >= 100) {
         newProgress = 0;
         const nextTargetId = targetNode.connectedNodes[Math.floor(Math.random() * targetNode.connectedNodes.length)];
@@ -322,51 +479,33 @@ export class TrafficEngine {
       };
     });
 
-    // 3. Update active emergency units progress
-    this.emergencyUnits = this.emergencyUnits.map(unit => {
-      if (unit.status !== 'en_route') return unit;
-
-      let nextProgress = unit.currentProgress + 2 * multiplier;
-      let status: 'dispatching' | 'en_route' | 'arrived' | 'cleared' = unit.status;
-      let waveActive = unit.greenWaveActive;
-
-      if (nextProgress >= 100) {
-        nextProgress = 100;
-        status = 'arrived';
-        waveActive = false;
-        // Release signal lock
-        this.nodes = this.nodes.map(n => {
-          if (unit.pathNodeIds.includes(n.id)) {
-            return {
-              ...n,
-              signalState: 'green',
-              signalMode: 'autonomous_ai',
-              incidentAlert: undefined
-            };
-          }
-          return n;
-        });
-      }
-
-      return {
-        ...unit,
-        currentProgress: nextProgress,
-        status,
-        greenWaveActive: waveActive,
-        etaSeconds: Math.max(0, Math.floor((100 - nextProgress) * 2.2))
-      };
-    });
-
-    // 4. Recalculate node density scores based on vehicles on approaching lanes
+    // 4. Update Node queues, density values, and trigger Agent Decisions
     this.nodes = this.nodes.map(node => {
-      // Find vehicles approaching this node
       const approachingVehicles = this.vehicles.filter(v => v.targetNodeId === node.id);
       const vehicleCount = approachingVehicles.length;
       const queuedCount = approachingVehicles.filter(v => v.status === 'queued').length;
 
-      // Mathematical interlocking: density and queues grow together
       const calculatedDensity = Math.min(99, Math.floor((vehicleCount * 8) + (queuedCount * 4) + (surge * 0.2)));
       const avgSpeed = Math.max(12, Math.floor(35 - (calculatedDensity * 0.22) - (weatherFactor === 1 ? 0 : 6)));
+
+      // Trigger Intersection Agent Decision
+      const agent = this.intersectionAgents[node.id];
+      const isEmergencyOnNode = this.emergencyUnits.some(u => u.greenWaveActive && u.pathNodeIds.includes(node.id));
+
+      if (agent && Math.random() > 0.6) { // Throttled agent processing
+        agent.evaluateSignalTiming({
+          density: calculatedDensity,
+          queueLength: queuedCount,
+          currentPhase: node.currentPhase,
+          weather: this.simConfig.weather,
+          emergencyActive: isEmergencyOnNode,
+          predictedCongestionRisk: calculatedDensity > 70 ? 'high' : 'low'
+        });
+      }
+
+      // Calculate congestion prediction dynamically via Prediction Agent
+      const activeIncidentOnNode = this.incidents.some(i => i.intersectionId === node.id && i.status !== 'resolved');
+      this.predictionAgent.calculateCongestionForecast(node, this.simConfig.weather, activeIncidentOnNode);
 
       return {
         ...node,
@@ -377,7 +516,7 @@ export class TrafficEngine {
       };
     });
 
-    // 5. Update overall city metrics
+    // 5. Update overall metrics
     const activeCorridors = this.emergencyUnits.filter(u => u.greenWaveActive).length;
     const avgGridSpeed = Math.floor(this.nodes.reduce((acc, n) => acc + n.avgSpeedMph, 0) / this.nodes.length);
     const avgCongestion = Math.floor(this.nodes.reduce((acc, n) => acc + n.densityScore, 0) / this.nodes.length);
@@ -390,23 +529,5 @@ export class TrafficEngine {
       emergencyCorridorsActive: activeCorridors,
       co2SavedTonsToday: Math.min(45, this.metrics.co2SavedTonsToday + (multiplier * 0.001 * (1.5 - avgCongestion/60)))
     };
-
-    // Update Camera Feeds metrics
-    this.cameraFeeds = this.cameraFeeds.map(cam => {
-      const node = this.nodes.find(n => n.id === cam.intersectionId);
-      if (!node) return cam;
-
-      return {
-        ...cam,
-        avgSpeedMph: node.avgSpeedMph,
-        detections: {
-          cars: Math.floor(node.vehicleCount * 0.75),
-          trucks: Math.floor(node.vehicleCount * 0.15),
-          buses: Math.floor(node.vehicleCount * 0.05),
-          bicycles: Math.floor(node.pedestrianWaiting * 0.2),
-          pedestrians: node.pedestrianWaiting
-        }
-      };
-    });
   }
 }

@@ -86,6 +86,8 @@ function OperatorAppContent() {
   const [incidents, setIncidents] = useState<IncidentItem[]>(INITIAL_INCIDENTS);
   const [metrics, setMetrics] = useState<CityMetrics>(INITIAL_CITY_METRICS);
   const [vehicles, setVehicles] = useState<any[]>([]);
+  const [agents, setAgents] = useState<any[]>([]);
+  const [agentLogs, setAgentLogs] = useState<any[]>([]);
 
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>('node-1');
   const [isSimulating, setIsSimulating] = useState(true);
@@ -135,6 +137,8 @@ function OperatorAppContent() {
             setIncidents(state.incidents);
             setMetrics(state.metrics);
             setVehicles(state.vehicles || []);
+            setAgents(state.agents || []);
+            setAgentLogs(state.agentLogs || []);
             setSimConfig(state.simConfig);
             setIsSimulating(state.simConfig.speedMultiplier > 0);
           }
@@ -337,7 +341,7 @@ function OperatorAppContent() {
 
         <Route path="/agents" element={
           <OperatorLayout activeIncidentsCount={activeIncidentsCount} activeEmergencyCount={activeEmergencyCount} onOpenAssistant={() => setIsAiAssistantOpen(true)} onOpenScenario={() => setIsScenarioModalOpen(true)}>
-            <AIAgentsPage emergencyUnits={emergencyUnits} incidents={incidents} nodes={nodes} />
+            <AIAgentsPage emergencyUnits={emergencyUnits} incidents={incidents} nodes={nodes} agents={agents} agentLogs={agentLogs} />
           </OperatorLayout>
         } />
 
