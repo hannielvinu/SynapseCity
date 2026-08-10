@@ -89,6 +89,13 @@ function OperatorAppContent() {
   const [agents, setAgents] = useState<any[]>([]);
   const [agentLogs, setAgentLogs] = useState<any[]>([]);
 
+  // Digital Twin state hooks
+  const [simEngineName, setSimEngineName] = useState<string>("Prototype Simulation Engine");
+  const [timelineStage, setTimelineStage] = useState<string>("start");
+  const [strategy, setStrategy] = useState<string>("ai");
+  const [comparison, setComparison] = useState<any>({ avgDelaySeconds: 15, travelTimeSeconds: 180, queueLength: 4, throughput: 12, emergencyEtaSeconds: 0 });
+  const [history, setHistory] = useState<any[]>([]);
+
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>('node-1');
   const [isSimulating, setIsSimulating] = useState(true);
 
@@ -114,7 +121,6 @@ function OperatorAppContent() {
 
     const connect = () => {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      // Server runs on port 3000 alongside frontend dev server
       const host = `${window.location.hostname}:3000`;
       const wsUrl = `${protocol}//${host}`;
 
@@ -141,6 +147,13 @@ function OperatorAppContent() {
             setAgentLogs(state.agentLogs || []);
             setSimConfig(state.simConfig);
             setIsSimulating(state.simConfig.speedMultiplier > 0);
+
+            // Set digital twin properties
+            setSimEngineName(state.simEngineName || "Prototype Simulation Engine");
+            setTimelineStage(state.timelineStage || "start");
+            setStrategy(state.strategy || "ai");
+            setComparison(state.comparison);
+            setHistory(state.history || []);
           }
         } catch (e) {
           console.error('Failed to parse WebSocket message', e);
@@ -224,6 +237,30 @@ function OperatorAppContent() {
   const handleUpdateConfigValue = (c: Partial<SimulationConfig>) => {
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
       socketRef.current.send(JSON.stringify({ type: 'UPDATE_CONFIG', config: c }));
+    }
+  };
+
+  const handleResetSimulation = () => {
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      socketRef.current.send(JSON.stringify({ type: 'RESET_SIMULATION' }));
+    }
+  };
+
+  const handleSetStrategy = (s: 'baseline' | 'ai') => {
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      socketRef.current.send(JSON.stringify({ type: 'SET_STRATEGY', strategy: s }));
+    }
+  };
+
+  const handleSaveRun = () => {
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      socketRef.current.send(JSON.stringify({ type: 'SAVE_RUN' }));
+    }
+  };
+
+  const handleSetSumoEnabled = (enabled: boolean) => {
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      socketRef.current.send(JSON.stringify({ type: 'SET_SUMO_ENABLED', enabled }));
     }
   };
 
@@ -335,6 +372,15 @@ function OperatorAppContent() {
               onUpdateSimulationConfig={handleUpdateConfigValue}
               isSimulating={isSimulating}
               onToggleSimulation={handleToggleSimulation}
+              simEngineName={simEngineName}
+              timelineStage={timelineStage}
+              strategy={strategy}
+              comparison={comparison}
+              history={history}
+              onResetSimulation={handleResetSimulation}
+              onSetStrategy={handleSetStrategy}
+              onSaveRun={handleSaveRun}
+              onSetSumoEnabled={handleSetSumoEnabled}
             />
           </OperatorLayout>
         } />
@@ -353,7 +399,7 @@ function OperatorAppContent() {
 
         <Route path="/analytics" element={
           <OperatorLayout activeIncidentsCount={activeIncidentsCount} activeEmergencyCount={activeEmergencyCount} onOpenAssistant={() => setIsAiAssistantOpen(true)} onOpenScenario={() => setIsScenarioModalOpen(true)}>
-            <AnalyticsPage metrics={metrics} />
+            <AnalyticsPage metrics={metrics} history={history} />
           </OperatorLayout>
         } />
 

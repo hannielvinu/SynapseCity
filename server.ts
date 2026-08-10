@@ -126,6 +126,18 @@ User Inquiry: ${prompt || "Analyze grid bottlenecks and recommend multi-agent si
           case "UPDATE_CONFIG":
             engine.updateConfig(data.config);
             break;
+          case "SET_STRATEGY":
+            engine.setStrategy(data.strategy);
+            break;
+          case "RESET_SIMULATION":
+            engine.resetSimulation();
+            break;
+          case "SAVE_RUN":
+            engine.saveCurrentRun();
+            break;
+          case "SET_SUMO_ENABLED":
+            engine.setSumoEnabled(data.enabled);
+            break;
         }
         // Broadcast the update immediately after actions are processed
         broadcastState();

@@ -9,7 +9,7 @@
     "start": "node dist/server.cjs",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
-    "test": "tsx src/tests/trafficEngine.test.ts && tsx src/tests/agentSystem.test.ts"
+    "test": "tsx src/tests/trafficEngine.test.ts && tsx src/tests/agentSystem.test.ts && tsx src/tests/digitalTwin.test.ts"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
