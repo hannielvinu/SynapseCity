@@ -3,6 +3,8 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
+import { WebSocketServer, WebSocket } from "ws";
+import { TrafficEngine } from "./src/services/trafficEngine";
 
 dotenv.config();
 
@@ -11,6 +13,9 @@ async function startServer() {
   const PORT = 3000;
 
   app.use(express.json());
+
+  // Initialize Traffic Simulation Engine
+  const engine = new TrafficEngine();
 
   // Health check endpoint
   app.get("/api/health", (req, res) => {
@@ -73,11 +78,71 @@ User Inquiry: ${prompt || "Analyze grid bottlenecks and recommend multi-agent si
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
+  // Create HTTP Server and bind WebSocket Server
+  const server = app.listen(PORT, "0.0.0.0", () => {
     console.log(`[SynapseCity AI] Server running on http://0.0.0.0:${PORT}`);
   });
+
+  const wss = new WebSocketServer({ server });
+
+  const broadcastState = () => {
+    const payload = JSON.stringify({ type: "UPDATE", state: engine.getFullState() });
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(payload);
+      }
+    });
+  };
+
+  wss.on("connection", (ws) => {
+    // Send initial authoritative state
+    ws.send(JSON.stringify({ type: "INIT", state: engine.getFullState() }));
+
+    ws.on("message", (message) => {
+      try {
+        const data = JSON.parse(message.toString());
+        switch (data.type) {
+          case "REBALANCE":
+            engine.rebalanceNode(data.nodeId);
+            break;
+          case "UPDATE_SIGNAL_MODE":
+            engine.updateNodeSignalMode(data.nodeId, data.mode);
+            break;
+          case "UPDATE_PHASE_DURATION":
+            engine.updatePhaseDuration(data.nodeId, data.duration);
+            break;
+          case "DISPATCH_EMERGENCY":
+            engine.dispatchEmergency(data.unit);
+            break;
+          case "CLEAR_EMERGENCY":
+            engine.clearEmergency(data.unitId);
+            break;
+          case "RESOLVE_INCIDENT":
+            engine.resolveIncident(data.incidentId);
+            break;
+          case "ADD_REPORT":
+            engine.addCitizenReport(data.report);
+            break;
+          case "UPDATE_CONFIG":
+            engine.updateConfig(data.config);
+            break;
+        }
+        // Broadcast the update immediately after actions are processed
+        broadcastState();
+      } catch (err) {
+        console.error("Failed to process WebSocket message:", err);
+      }
+    });
+  });
+
+  // Authoritative server-side simulation clock tick
+  setInterval(() => {
+    engine.tick();
+    broadcastState();
+  }, 1000);
 }
 
 startServer().catch((err) => {
   console.error("Failed to start SynapseCity AI server:", err);
 });
+

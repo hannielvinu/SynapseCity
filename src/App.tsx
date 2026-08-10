@@ -75,6 +75,8 @@ function OperatorLayout({ children, activeIncidentsCount, activeEmergencyCount, 
   );
 }
 
+import { useRef, useCallback } from 'react';
+
 function OperatorAppContent() {
   const navigate = useNavigate();
 
@@ -83,6 +85,7 @@ function OperatorAppContent() {
   const [emergencyUnits, setEmergencyUnits] = useState<EmergencyUnit[]>(INITIAL_EMERGENCY_UNITS);
   const [incidents, setIncidents] = useState<IncidentItem[]>(INITIAL_INCIDENTS);
   const [metrics, setMetrics] = useState<CityMetrics>(INITIAL_CITY_METRICS);
+  const [vehicles, setVehicles] = useState<any[]>([]);
 
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>('node-1');
   const [isSimulating, setIsSimulating] = useState(true);
@@ -99,155 +102,125 @@ function OperatorAppContent() {
   const [isAiAssistantOpen, setIsAiAssistantOpen] = useState(false);
   const [isScenarioModalOpen, setIsScenarioModalOpen] = useState(false);
 
-  // Live Simulation Engine Loop
+  // WebSocket Connection State
+  const socketRef = useRef<WebSocket | null>(null);
+  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'reconnecting' | 'offline'>('connecting');
+
+  const connectWebSocket = useCallback(() => {
+    let attempts = 0;
+    const maxAttempts = 5;
+
+    const connect = () => {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      // Server runs on port 3000 alongside frontend dev server
+      const host = `${window.location.hostname}:3000`;
+      const wsUrl = `${protocol}//${host}`;
+
+      const ws = new WebSocket(wsUrl);
+      socketRef.current = ws;
+
+      ws.onopen = () => {
+        setConnectionStatus('connected');
+        attempts = 0;
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          if (message.type === 'INIT' || message.type === 'UPDATE') {
+            const state = message.state;
+            setNodes(state.nodes);
+            setCameraFeeds(state.cameraFeeds);
+            setEmergencyUnits(state.emergencyUnits);
+            setIncidents(state.incidents);
+            setMetrics(state.metrics);
+            setVehicles(state.vehicles || []);
+            setSimConfig(state.simConfig);
+            setIsSimulating(state.simConfig.speedMultiplier > 0);
+          }
+        } catch (e) {
+          console.error('Failed to parse WebSocket message', e);
+        }
+      };
+
+      ws.onclose = () => {
+        if (attempts < maxAttempts) {
+          setConnectionStatus('reconnecting');
+          attempts++;
+          setTimeout(connect, 3000);
+        } else {
+          setConnectionStatus('offline');
+        }
+      };
+
+      ws.onerror = () => {
+        ws.close();
+      };
+    };
+
+    connect();
+  }, []);
+
   useEffect(() => {
-    if (!isSimulating) return;
+    connectWebSocket();
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.close();
+      }
+    };
+  }, [connectWebSocket]);
 
-    const intervalTime = Math.max(200, 1500 / simConfig.speedMultiplier);
-
-    const interval = setInterval(() => {
-      // 1. Update Intersection Nodes
-      setNodes((prevNodes) =>
-        prevNodes.map((node) => {
-          let newRemaining = node.phaseTimeRemaining - 1;
-          let newPhase = node.currentPhase;
-          let newSignalState = node.signalState;
-
-          if (newRemaining <= 0) {
-            newRemaining = Math.floor(Math.random() * 20) + 15;
-            if (node.currentPhase.includes('N-S')) {
-              newPhase = 'E-W Straight & Left Turn Phase';
-              newSignalState = 'green';
-            } else {
-              newPhase = 'N-S Straight & Pedestrian Protected';
-              newSignalState = 'green';
-            }
-          } else if (newRemaining <= 4 && node.signalState !== 'emergency_override') {
-            newSignalState = 'yellow';
-          }
-
-          // Fluctuate density slightly based on surge
-          const surgeFactor = 1 + simConfig.trafficSurge / 100;
-          const randomDelta = Math.floor((Math.random() - 0.48) * 4 * surgeFactor);
-          const newDensity = Math.max(10, Math.min(98, node.densityScore + randomDelta));
-
-          return {
-            ...node,
-            phaseTimeRemaining: newRemaining,
-            currentPhase: newPhase,
-            signalState: newSignalState,
-            densityScore: newDensity
-          };
-        })
-      );
-
-      // 2. Update Emergency Unit progress along corridor
-      setEmergencyUnits((prevUnits) =>
-        prevUnits.map((unit) => {
-          if (unit.status !== 'en_route') return unit;
-
-          const newProgress = unit.currentProgress + 2 * simConfig.speedMultiplier;
-          if (newProgress >= 100) {
-            return {
-              ...unit,
-              currentProgress: 100,
-              status: 'arrived',
-              greenWaveActive: false
-            };
-          }
-
-          return {
-            ...unit,
-            currentProgress: newProgress,
-            etaSeconds: Math.max(0, Math.floor((100 - newProgress) * 2.2))
-          };
-        })
-      );
-
-      // 3. Update Overall City Metrics
-      setMetrics((prev) => {
-        const activeCorridors = emergencyUnits.filter(u => u.greenWaveActive).length;
-        return {
-          ...prev,
-          emergencyCorridorsActive: activeCorridors,
-          totalActiveVehicles: Math.floor(14800 + Math.random() * 100 + simConfig.trafficSurge * 20)
-        };
-      });
-
-    }, intervalTime);
-
-    return () => clearInterval(interval);
-  }, [isSimulating, simConfig, emergencyUnits]);
-
-  // Handlers
+  // Command handlers sending messages over WebSockets
   const handleUpdateNodeSignalMode = (nodeId: string, mode: SignalMode) => {
-    setNodes((prev) => prev.map((n) => (n.id === nodeId ? { ...n, signalMode: mode } : n)));
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      socketRef.current.send(JSON.stringify({ type: 'UPDATE_SIGNAL_MODE', nodeId, mode }));
+    }
   };
 
   const handleUpdatePhaseDuration = (nodeId: string, phaseTime: number) => {
-    setNodes((prev) => prev.map((n) => (n.id === nodeId ? { ...n, phaseTimeRemaining: phaseTime } : n)));
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      socketRef.current.send(JSON.stringify({ type: 'UPDATE_PHASE_DURATION', nodeId, duration: phaseTime }));
+    }
   };
 
   const handleTriggerAiRebalance = (nodeId: string) => {
-    setNodes((prev) =>
-      prev.map((n) => ({
-        ...n,
-        densityScore: Math.max(15, n.densityScore - 18),
-        aiConfidence: Math.min(99.8, n.aiConfidence + 1.5)
-      }))
-    );
-    setMetrics((prev) => ({
-      ...prev,
-      signalOptimizationEfficiency: Math.min(99.4, prev.signalOptimizationEfficiency + 1.2),
-      congestionIndex: Math.max(12, prev.congestionIndex - 4)
-    }));
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      socketRef.current.send(JSON.stringify({ type: 'REBALANCE', nodeId }));
+    }
   };
 
   const handleDispatchEmergency = (newUnitData: Omit<EmergencyUnit, 'id'>) => {
-    const newId = `em-${Date.now()}`;
-    const newUnit: EmergencyUnit = { ...newUnitData, id: newId };
-    setEmergencyUnits((prev) => [newUnit, ...prev]);
-
-    setNodes((prev) =>
-      prev.map((n) => {
-        if (newUnit.pathNodeIds.includes(n.id)) {
-          return {
-            ...n,
-            signalState: 'emergency_override',
-            signalMode: 'emergency_corridor',
-            incidentAlert: `${newUnit.callsign} Priority Corridor Green Lock`
-          };
-        }
-        return n;
-      })
-    );
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      socketRef.current.send(JSON.stringify({ type: 'DISPATCH_EMERGENCY', unit: newUnitData }));
+    }
   };
 
   const handleClearEmergency = (unitId: string) => {
-    const unitToClear = emergencyUnits.find(u => u.id === unitId);
-    setEmergencyUnits((prev) => prev.filter((u) => u.id !== unitId));
-
-    if (unitToClear) {
-      setNodes((prev) =>
-        prev.map((n) => {
-          if (unitToClear.pathNodeIds.includes(n.id)) {
-            return {
-              ...n,
-              signalState: 'green',
-              signalMode: 'autonomous_ai',
-              incidentAlert: undefined
-            };
-          }
-          return n;
-        })
-      );
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      socketRef.current.send(JSON.stringify({ type: 'CLEAR_EMERGENCY', unitId }));
     }
   };
 
   const handleResolveIncident = (incidentId: string) => {
-    setIncidents((prev) =>
-      prev.map((inc) => (inc.id === incidentId ? { ...inc, status: 'resolved' } : inc))
-    );
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      socketRef.current.send(JSON.stringify({ type: 'RESOLVE_INCIDENT', incidentId }));
+    }
+  };
+
+  const handleToggleSimulation = () => {
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      const nextMultiplier = isSimulating ? 0 : 1;
+      socketRef.current.send(JSON.stringify({ 
+        type: 'UPDATE_CONFIG', 
+        config: { ...simConfig, speedMultiplier: nextMultiplier } 
+      }));
+    }
+  };
+
+  const handleUpdateConfigValue = (c: Partial<SimulationConfig>) => {
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      socketRef.current.send(JSON.stringify({ type: 'UPDATE_CONFIG', config: c }));
+    }
   };
 
   const handleNavigateTab = (tab: NavigationTab) => {
@@ -267,6 +240,33 @@ function OperatorAppContent() {
 
   return (
     <>
+      {/* Reconnecting Toast banner */}
+      {connectionStatus === 'reconnecting' && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-amber-500 text-slate-950 font-extrabold px-5 py-2.5 rounded-full shadow-2xl text-[11px] tracking-wider animate-pulse flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-slate-950 animate-ping"></span>
+          RECONNECTING TO CORE ENGINE...
+        </div>
+      )}
+
+      {/* Offline Modal Overlay */}
+      {connectionStatus === 'offline' && (
+        <div className="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center space-y-4">
+          <div className="w-16 h-16 rounded-2xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-500 text-xl font-bold animate-bounce">
+            !
+          </div>
+          <div className="text-white font-extrabold text-base uppercase tracking-wider">OFFLINE</div>
+          <p className="text-slate-400 text-xs max-w-xs text-center leading-relaxed">
+            Lost connection to the SynapseCity AI Autonomous Traffic Command Engine.
+          </p>
+          <button 
+            onClick={connectWebSocket} 
+            className="bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all shadow-lg"
+          >
+            Retry Connection
+          </button>
+        </div>
+      )}
+
       <Routes>
         {/* Public Showcase Landing Page */}
         <Route path="/" element={<LandingPage />} />
@@ -290,7 +290,7 @@ function OperatorAppContent() {
 
         <Route path="/traffic" element={
           <OperatorLayout activeIncidentsCount={activeIncidentsCount} activeEmergencyCount={activeEmergencyCount} onOpenAssistant={() => setIsAiAssistantOpen(true)} onOpenScenario={() => setIsScenarioModalOpen(true)}>
-            <LiveTrafficPage cameraFeeds={cameraFeeds} />
+            <LiveTrafficPage cameraFeeds={cameraFeeds} vehicles={vehicles} />
           </OperatorLayout>
         } />
 
@@ -328,9 +328,9 @@ function OperatorAppContent() {
           <OperatorLayout activeIncidentsCount={activeIncidentsCount} activeEmergencyCount={activeEmergencyCount} onOpenAssistant={() => setIsAiAssistantOpen(true)} onOpenScenario={() => setIsScenarioModalOpen(true)}>
             <DigitalTwinPage
               simulationConfig={simConfig}
-              onUpdateSimulationConfig={(c) => setSimConfig(prev => ({ ...prev, ...c }))}
+              onUpdateSimulationConfig={handleUpdateConfigValue}
               isSimulating={isSimulating}
-              onToggleSimulation={() => setIsSimulating(!isSimulating)}
+              onToggleSimulation={handleToggleSimulation}
             />
           </OperatorLayout>
         } />
@@ -378,7 +378,7 @@ function OperatorAppContent() {
         isOpen={isScenarioModalOpen}
         onClose={() => setIsScenarioModalOpen(false)}
         simConfig={simConfig}
-        setSimConfig={setSimConfig}
+        setSimConfig={handleUpdateConfigValue}
       />
     </>
   );
