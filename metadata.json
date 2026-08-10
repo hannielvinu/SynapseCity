@@ -1,0 +1,6 @@
+{
+  "name": "SynapseCity AI",
+  "description": "AI-powered autonomous urban mobility and intelligent traffic management platform featuring live computer vision feeds, multi-agent AI signal control, emergency corridor dispatch, and predictive congestion analytics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
