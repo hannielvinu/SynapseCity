@@ -1,0 +1,291 @@
+[
+  {
+    "config": {
+      "trafficSurge": 60,
+      "weather": "dense_fog",
+      "speedMultiplier": 1
+    },
+    "strategy": "ai",
+    "results": {
+      "avgDelaySeconds": 33,
+      "travelTimeSeconds": 396,
+      "queueLength": 9,
+      "throughput": 266,
+      "emergencyEtaSeconds": 0
+    },
+    "id": "sim-1786453395358",
+    "timestamp": "11/8/2026 6:33:15 pm"
+  },
+  {
+    "config": {
+      "trafficSurge": 60,
+      "weather": "dense_fog",
+      "speedMultiplier": 1
+    },
+    "strategy": "ai",
+    "results": {
+      "avgDelaySeconds": 33,
+      "travelTimeSeconds": 396,
+      "queueLength": 8,
+      "throughput": 269,
+      "emergencyEtaSeconds": 0
+    },
+    "id": "sim-1786374455711",
+    "timestamp": "10/8/2026 8:37:35 pm"
+  },
+  {
+    "config": {
+      "trafficSurge": 60,
+      "weather": "dense_fog",
+      "speedMultiplier": 1
+    },
+    "strategy": "ai",
+    "results": {
+      "avgDelaySeconds": 33,
+      "travelTimeSeconds": 396,
+      "queueLength": 6,
+      "throughput": 272,
+      "emergencyEtaSeconds": 0
+    },
+    "id": "sim-1786372632118",
+    "timestamp": "10/8/2026 8:07:12 pm"
+  },
+  {
+    "id": "sim-hist-1",
+    "config": {
+      "trafficSurge": 36,
+      "weather": "dense_fog",
+      "speedMultiplier": 1
+    },
+    "strategy": "baseline",
+    "results": {
+      "avgDelaySeconds": 335,
+      "travelTimeSeconds": 654,
+      "queueLength": 18,
+      "throughput": 1157,
+      "emergencyEtaSeconds": 99
+    },
+    "timestamp": "3/8/2026"
+  },
+  {
+    "id": "sim-hist-2",
+    "config": {
+      "trafficSurge": 17,
+      "weather": "clear",
+      "speedMultiplier": 1
+    },
+    "strategy": "ai",
+    "results": {
+      "avgDelaySeconds": 217,
+      "travelTimeSeconds": 436,
+      "queueLength": 6,
+      "throughput": 1688,
+      "emergencyEtaSeconds": 51
+    },
+    "timestamp": "3/8/2026"
+  },
+  {
+    "id": "sim-hist-3",
+    "config": {
+      "trafficSurge": 31,
+      "weather": "clear",
+      "speedMultiplier": 1
+    },
+    "strategy": "baseline",
+    "results": {
+      "avgDelaySeconds": 370,
+      "travelTimeSeconds": 747,
+      "queueLength": 21,
+      "throughput": 1086,
+      "emergencyEtaSeconds": 91
+    },
+    "timestamp": "4/8/2026"
+  },
+  {
+    "id": "sim-hist-4",
+    "config": {
+      "trafficSurge": 31,
+      "weather": "dense_fog",
+      "speedMultiplier": 1
+    },
+    "strategy": "ai",
+    "results": {
+      "avgDelaySeconds": 187,
+      "travelTimeSeconds": 414,
+      "queueLength": 6,
+      "throughput": 1452,
+      "emergencyEtaSeconds": 59
+    },
+    "timestamp": "4/8/2026"
+  },
+  {
+    "id": "sim-hist-5",
+    "config": {
+      "trafficSurge": 40,
+      "weather": "heavy_rain",
+      "speedMultiplier": 1
+    },
+    "strategy": "baseline",
+    "results": {
+      "avgDelaySeconds": 346,
+      "travelTimeSeconds": 669,
+      "queueLength": 23,
+      "throughput": 1142,
+      "emergencyEtaSeconds": 105
+    },
+    "timestamp": "5/8/2026"
+  },
+  {
+    "id": "sim-hist-6",
+    "config": {
+      "trafficSurge": 30,
+      "weather": "heavy_rain",
+      "speedMultiplier": 1
+    },
+    "strategy": "ai",
+    "results": {
+      "avgDelaySeconds": 186,
+      "travelTimeSeconds": 407,
+      "queueLength": 9,
+      "throughput": 1427,
+      "emergencyEtaSeconds": 48
+    },
+    "timestamp": "5/8/2026"
+  },
+  {
+    "id": "sim-hist-7",
+    "config": {
+      "trafficSurge": 31,
+      "weather": "heavy_rain",
+      "speedMultiplier": 1
+    },
+    "strategy": "baseline",
+    "results": {
+      "avgDelaySeconds": 364,
+      "travelTimeSeconds": 659,
+      "queueLength": 18,
+      "throughput": 1170,
+      "emergencyEtaSeconds": 98
+    },
+    "timestamp": "6/8/2026"
+  },
+  {
+    "id": "sim-hist-8",
+    "config": {
+      "trafficSurge": 40,
+      "weather": "heavy_rain",
+      "speedMultiplier": 1
+    },
+    "strategy": "ai",
+    "results": {
+      "avgDelaySeconds": 207,
+      "travelTimeSeconds": 402,
+      "queueLength": 7,
+      "throughput": 1445,
+      "emergencyEtaSeconds": 51
+    },
+    "timestamp": "6/8/2026"
+  },
+  {
+    "id": "sim-hist-9",
+    "config": {
+      "trafficSurge": 28,
+      "weather": "dense_fog",
+      "speedMultiplier": 1
+    },
+    "strategy": "baseline",
+    "results": {
+      "avgDelaySeconds": 328,
+      "travelTimeSeconds": 670,
+      "queueLength": 19,
+      "throughput": 1168,
+      "emergencyEtaSeconds": 86
+    },
+    "timestamp": "7/8/2026"
+  },
+  {
+    "id": "sim-hist-10",
+    "config": {
+      "trafficSurge": 23,
+      "weather": "clear",
+      "speedMultiplier": 1
+    },
+    "strategy": "ai",
+    "results": {
+      "avgDelaySeconds": 209,
+      "travelTimeSeconds": 404,
+      "queueLength": 8,
+      "throughput": 1609,
+      "emergencyEtaSeconds": 54
+    },
+    "timestamp": "7/8/2026"
+  },
+  {
+    "id": "sim-hist-11",
+    "config": {
+      "trafficSurge": 12,
+      "weather": "dense_fog",
+      "speedMultiplier": 1
+    },
+    "strategy": "baseline",
+    "results": {
+      "avgDelaySeconds": 388,
+      "travelTimeSeconds": 717,
+      "queueLength": 18,
+      "throughput": 1192,
+      "emergencyEtaSeconds": 95
+    },
+    "timestamp": "8/8/2026"
+  },
+  {
+    "id": "sim-hist-12",
+    "config": {
+      "trafficSurge": 41,
+      "weather": "clear",
+      "speedMultiplier": 1
+    },
+    "strategy": "ai",
+    "results": {
+      "avgDelaySeconds": 207,
+      "travelTimeSeconds": 454,
+      "queueLength": 8,
+      "throughput": 1467,
+      "emergencyEtaSeconds": 45
+    },
+    "timestamp": "8/8/2026"
+  },
+  {
+    "id": "sim-hist-13",
+    "config": {
+      "trafficSurge": 47,
+      "weather": "clear",
+      "speedMultiplier": 1
+    },
+    "strategy": "baseline",
+    "results": {
+      "avgDelaySeconds": 351,
+      "travelTimeSeconds": 675,
+      "queueLength": 19,
+      "throughput": 1091,
+      "emergencyEtaSeconds": 91
+    },
+    "timestamp": "9/8/2026"
+  },
+  {
+    "id": "sim-hist-14",
+    "config": {
+      "trafficSurge": 44,
+      "weather": "dense_fog",
+      "speedMultiplier": 1
+    },
+    "strategy": "ai",
+    "results": {
+      "avgDelaySeconds": 184,
+      "travelTimeSeconds": 456,
+      "queueLength": 6,
+      "throughput": 1549,
+      "emergencyEtaSeconds": 53
+    },
+    "timestamp": "9/8/2026"
+  }
+]
