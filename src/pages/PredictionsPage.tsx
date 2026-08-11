@@ -5,9 +5,10 @@ import { CityMetrics } from '../types';
 
 interface PredictionsPageProps {
   metrics: CityMetrics;
+  predictions?: any[];
 }
 
-export const PredictionsPage: React.FC<PredictionsPageProps> = ({ metrics }) => {
+export const PredictionsPage: React.FC<PredictionsPageProps> = ({ metrics, predictions = [] }) => {
   return (
     <div className="space-y-6">
       <PageHeader
@@ -17,7 +18,7 @@ export const PredictionsPage: React.FC<PredictionsPageProps> = ({ metrics }) => 
         badgeType="amber"
       />
 
-      <PredictiveAnalyticsView metrics={metrics} />
+      <PredictiveAnalyticsView metrics={metrics} predictions={predictions} />
     </div>
   );
 };

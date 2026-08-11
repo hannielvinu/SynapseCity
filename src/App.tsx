@@ -96,6 +96,10 @@ function OperatorAppContent() {
   const [comparison, setComparison] = useState<any>({ avgDelaySeconds: 15, travelTimeSeconds: 180, queueLength: 4, throughput: 12, emergencyEtaSeconds: 0 });
   const [history, setHistory] = useState<any[]>([]);
 
+  // Phase 3 Intelligence State
+  const [intelligenceEvents, setIntelligenceEvents] = useState<any[]>([]);
+  const [predictions, setPredictions] = useState<any[]>([]);
+
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>('node-1');
   const [isSimulating, setIsSimulating] = useState(true);
 
@@ -196,6 +200,26 @@ function OperatorAppContent() {
               emergencyEtaSeconds: 0
             });
             setHistory(message.state.history || []);
+          } else if (message.type === 'INTELLIGENCE_EVENT') {
+            const ev = message.event;
+            
+            setIntelligenceEvents(prev => {
+              const next = [ev, ...prev];
+              return next.length > 50 ? next.slice(0, 50) : next;
+            });
+
+            if (ev.type === 'PREDICTION_UPDATED') {
+              setPredictions(prev => {
+                // Upsert based on intersection and horizon
+                const idx = prev.findIndex(p => p.affectedIntersectionId === ev.data.affectedIntersectionId && p.horizonMinutes === ev.data.horizonMinutes);
+                if (idx >= 0) {
+                  const updated = [...prev];
+                  updated[idx] = ev.data;
+                  return updated;
+                }
+                return [...prev, ev.data];
+              });
+            }
           }
         } catch (e) {
           console.error('Failed to parse WebSocket message', e);
@@ -365,6 +389,8 @@ function OperatorAppContent() {
               emergencyUnits={emergencyUnits}
               cameraFeeds={cameraFeeds}
               vehicles={vehicles}
+              intelligenceEvents={intelligenceEvents}
+              predictions={predictions}
               isSimulating={isSimulating}
               onNavigateTab={handleNavigateTab}
               onOpenAiAssistant={() => setIsAiAssistantOpen(true)}
@@ -404,7 +430,7 @@ function OperatorAppContent() {
 
         <Route path="/predictions" element={
           <OperatorLayout activeIncidentsCount={activeIncidentsCount} activeEmergencyCount={activeEmergencyCount} onOpenAssistant={() => setIsAiAssistantOpen(true)} onOpenScenario={() => setIsScenarioModalOpen(true)}>
-            <PredictionsPage metrics={metrics} />
+            <PredictionsPage metrics={metrics} predictions={predictions} />
           </OperatorLayout>
         } />
 
@@ -430,7 +456,12 @@ function OperatorAppContent() {
 
         <Route path="/agents" element={
           <OperatorLayout activeIncidentsCount={activeIncidentsCount} activeEmergencyCount={activeEmergencyCount} onOpenAssistant={() => setIsAiAssistantOpen(true)} onOpenScenario={() => setIsScenarioModalOpen(true)}>
-            <AIAgentsPage emergencyUnits={emergencyUnits} incidents={incidents} nodes={nodes} agents={agents} agentLogs={agentLogs} />
+            <AIAgentsPage 
+              emergencyUnits={emergencyUnits} 
+              incidents={incidents} 
+              nodes={nodes} 
+              intelligenceEvents={intelligenceEvents}
+            />
           </OperatorLayout>
         } />
 

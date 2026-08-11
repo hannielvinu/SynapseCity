@@ -4,19 +4,24 @@ import { PrototypeProvider } from '../simulation/PrototypeProvider';
 import { SumoProvider } from '../simulation/SumoProvider';
 import { TrafficSnapshot, SimulationState, Scenario } from '../../domain/types';
 import { SimulationConfiguration } from '../../config/simulation';
+import { CityCoordinator } from '../../intelligence/coordination/CityCoordinator';
+import { DefaultIntelligenceConfig } from '../../intelligence/config';
 
 export class TrafficStore extends EventEmitter {
   private activeProvider: SimulationProvider;
   private sumoProvider: SumoProvider;
   private prototypeProvider: PrototypeProvider;
+  private coordinator: CityCoordinator;
   
   private currentSnapshot: TrafficSnapshot | null = null;
   private tickInterval: NodeJS.Timeout | null = null;
+  private tickCount: number = 0;
 
   constructor() {
     super();
     this.sumoProvider = new SumoProvider();
     this.prototypeProvider = new PrototypeProvider();
+    this.coordinator = new CityCoordinator();
     // Default to prototype until initialized
     this.activeProvider = this.prototypeProvider;
   }
@@ -61,8 +66,38 @@ export class TrafficStore extends EventEmitter {
     this.tickInterval = setInterval(() => {
       this.activeProvider.step();
       this.currentSnapshot = this.activeProvider.getState();
+      
+      this.tickCount++;
+
+      // Run intelligence layer at configured interval
+      if (this.currentSnapshot && this.tickCount % DefaultIntelligenceConfig.decisionIntervalTicks === 0) {
+        const decisions = this.coordinator.coordinate(this.currentSnapshot);
+        this.executeDecisions(decisions);
+      }
+
       this.broadcastState();
     }, 1000); // 1 tick per second
+  }
+
+  private executeDecisions(decisions: any[]): void {
+    for (const decision of decisions) {
+      if (decision.approvalStatus === 'APPROVED' && this.activeProvider instanceof PrototypeProvider) {
+        try {
+          if (decision.decisionType === 'SIGNAL_CHANGE') {
+            // Send the command down to the engine
+            this.activeProvider.engine.forceSignalPhase(decision.intersectionId, decision.requestedChange.phase, decision.requestedChange.duration);
+            decision.approvalStatus = 'EXECUTED';
+            decision.executedAt = Date.now();
+            
+            // Re-publish the executed state back to the intelligence bus
+            // The intelligence bus is a singleton so we could inject it, but the coordinator handles logic.
+            // For now, updating the status is sufficient for local state execution mapping.
+          }
+        } catch (e) {
+          console.error("Failed to execute approved decision:", e);
+        }
+      }
+    }
   }
 
   private broadcastState(): void {
@@ -99,6 +134,47 @@ export class TrafficStore extends EventEmitter {
     // Commands specific to prototype engine that UI triggers
     if (this.activeProvider instanceof PrototypeProvider) {
       const engine = this.activeProvider.engine;
+      
+      // Safety Boundary Interception
+      if (['UPDATE_PHASE_DURATION', 'REBALANCE', 'DISPATCH_EMERGENCY'].includes(command.type) && this.currentSnapshot) {
+        
+        let targetNodeId = command.nodeId;
+        let requestedDuration = command.duration || 45; // default fallback
+        let source = 'Operator';
+        
+        // For emergency, figure out the first node
+        if (command.type === 'DISPATCH_EMERGENCY') {
+           // We just need the route origin for basic validation mapping
+           // The full routing engine is in TrafficEngine, but we can do a quick lookup or just validate the origin.
+           targetNodeId = command.unit.origin;
+           source = 'EmergencyDispatcher';
+           requestedDuration = 60; // emergencies hold longer
+        }
+
+        const intersection = this.currentSnapshot.intersections.find(i => i.id === targetNodeId);
+        if (intersection) {
+          const proposal = {
+            id: `cmd-${Date.now()}`,
+            agentId: 'external-ui',
+            intersectionId: targetNodeId,
+            timestamp: Date.now(),
+            requestedPhase: intersection.currentPhase, // For simple duration/rebalance requests, keep phase
+            requestedDuration: requestedDuration,
+            reason: `External command: ${command.type}`,
+            expectedImpact: 'Immediate manual/emergency override',
+            priority: source === 'EmergencyDispatcher' ? 100 : 80,
+            confidence: 1,
+            source
+          };
+
+          const validation = this.coordinator.validateExternalProposal(proposal, this.currentSnapshot);
+          if (!validation.approved) {
+            console.warn(`[TrafficStore] Safety Boundary REJECTED command ${command.type}: ${validation.reason}`);
+            return; // DROP COMMAND
+          }
+        }
+      }
+
       switch (command.type) {
         case "REBALANCE":
           engine.rebalanceNode(command.nodeId);

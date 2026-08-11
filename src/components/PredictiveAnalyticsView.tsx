@@ -4,24 +4,13 @@ import { TrendingUp, Zap, CloudRain, Sun, DollarSign, Activity, BarChart3, Shiel
 
 interface PredictiveAnalyticsViewProps {
   metrics: CityMetrics;
+  predictions?: any[];
 }
 
-export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = ({ metrics }) => {
-  // Calculate optimized curves dynamically based on live congestion index
-  const hours = ['06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'];
-  const baseCong = metrics.congestionIndex;
-  const aiOptimizedCongestion = [
-    Math.max(8, Math.floor(baseCong * 0.7)),
-    Math.max(10, Math.floor(baseCong * 1.4)),
-    Math.max(10, Math.floor(baseCong * 1.1)),
-    Math.max(8, Math.floor(baseCong * 0.9)),
-    Math.max(10, Math.floor(baseCong * 1.0)),
-    Math.max(10, Math.floor(baseCong * 1.5)),
-    Math.max(10, Math.floor(baseCong * 1.3)),
-    Math.max(8, Math.floor(baseCong * 0.8)),
-    Math.max(6, Math.floor(baseCong * 0.5)),
-  ];
-  const baselineCongestion = aiOptimizedCongestion.map(v => Math.min(99, Math.floor(v * 1.6)));
+export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = ({ metrics, predictions = [] }) => {
+  // We only show predictions from the HeuristicPredictionProvider
+  const latestPredictions = predictions.slice(-6); // grab latest 6 to display in some form
+  const hasPredictions = latestPredictions.length > 0;
 
   return (
     <div className="space-y-6 font-sans">
@@ -61,34 +50,39 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
         </div>
 
         {/* Visual Bar Chart Comparison */}
-        <div className="h-64 flex items-end justify-between gap-2 pt-8 pb-2 px-4 bg-slate-950 rounded-xl border border-slate-800/80">
-          {hours.map((hour, idx) => {
-            const baseVal = baselineCongestion[idx];
-            const aiVal = aiOptimizedCongestion[idx];
-            return (
-              <div key={hour} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
-                <div className="w-full flex items-end justify-center gap-1.5 h-full">
-                  {/* Baseline bar */}
-                  <div
-                    className="w-3/8 bg-rose-500/30 hover:bg-rose-500/50 rounded-t transition-all"
-                    style={{ height: `${baseVal}%` }}
-                    title={`Unmanaged: ${baseVal}%`}
-                  ></div>
-                  {/* Simulated bar */}
-                  <div
-                    className="w-3/8 bg-emerald-500 hover:bg-emerald-400 rounded-t transition-all shadow-md shadow-emerald-500/30"
-                    style={{ height: `${aiVal}%` }}
-                    title={`Heuristic Controlled: ${aiVal}%`}
-                  ></div>
+        <div className="h-64 flex items-end justify-between gap-2 pt-8 pb-2 px-4 bg-slate-950 rounded-xl border border-slate-800/80 overflow-hidden">
+          {!hasPredictions ? (
+            <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 italic text-sm">
+              <Activity className="w-8 h-8 mb-2 opacity-50 animate-pulse" />
+              Awaiting Heuristic Projection Data...
+            </div>
+          ) : (
+            latestPredictions.map((pred, idx) => {
+              const baseVal = pred.currentState?.density || 0;
+              const aiVal = pred.predictedState?.density || 0;
+              return (
+                <div key={idx} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+                  <div className="w-full flex items-end justify-center gap-1.5 h-full">
+                    <div
+                      className="w-3/8 bg-rose-500/30 hover:bg-rose-500/50 rounded-t transition-all"
+                      style={{ height: `${baseVal}%` }}
+                      title={`Current Density: ${baseVal}%`}
+                    ></div>
+                    <div
+                      className="w-3/8 bg-emerald-500 hover:bg-emerald-400 rounded-t transition-all shadow-md shadow-emerald-500/30"
+                      style={{ height: `${aiVal}%` }}
+                      title={`Predicted Density (${pred.horizonMinutes}m): ${aiVal}%`}
+                    ></div>
+                  </div>
+                  <span className="text-[10px] font-mono text-slate-400">+{pred.horizonMinutes}m</span>
                 </div>
-                <span className="text-[10px] font-mono text-slate-400">{hour}</span>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
 
         <p className="text-xs text-slate-400 text-center italic">
-          * Simulated heuristic optimization reduces peak rush hour congestion index by up to <strong className="text-emerald-400 font-mono">45.4%</strong>.
+          * Heuristic prediction engine active. Forecasting upcoming network bottlenecks.
         </p>
       </div>
 

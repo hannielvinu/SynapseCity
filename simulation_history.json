@@ -9,6 +9,40 @@
     "results": {
       "avgDelaySeconds": 40,
       "travelTimeSeconds": 480,
+      "queueLength": 12,
+      "throughput": 271,
+      "emergencyEtaSeconds": 0
+    },
+    "id": "sim-1786471194391",
+    "timestamp": "11/8/2026 11:29:54 pm"
+  },
+  {
+    "config": {
+      "trafficSurge": 60,
+      "weather": "dense_fog",
+      "speedMultiplier": 1
+    },
+    "strategy": "ai",
+    "results": {
+      "avgDelaySeconds": 40,
+      "travelTimeSeconds": 480,
+      "queueLength": 21,
+      "throughput": 272,
+      "emergencyEtaSeconds": 0
+    },
+    "id": "sim-1786470313386",
+    "timestamp": "11/8/2026 11:15:13 pm"
+  },
+  {
+    "config": {
+      "trafficSurge": 60,
+      "weather": "dense_fog",
+      "speedMultiplier": 1
+    },
+    "strategy": "ai",
+    "results": {
+      "avgDelaySeconds": 40,
+      "travelTimeSeconds": 480,
       "queueLength": 9,
       "throughput": 277,
       "emergencyEtaSeconds": 0

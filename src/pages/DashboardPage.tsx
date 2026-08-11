@@ -11,6 +11,8 @@ interface DashboardPageProps {
   emergencyUnits: EmergencyUnit[];
   cameraFeeds: CameraFeed[];
   vehicles: any[];
+  intelligenceEvents?: any[];
+  predictions?: any[];
   isSimulating: boolean;
   onNavigateTab: (tab: NavigationTab) => void;
   onOpenAiAssistant: () => void;

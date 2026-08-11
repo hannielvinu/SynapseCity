@@ -5,6 +5,7 @@ import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 import { WebSocketServer, WebSocket } from "ws";
 import { TrafficStore } from "./src/services/state/TrafficStore";
+import { IntelligenceEventBus } from "./src/intelligence/events/IntelligenceEventBus";
 
 dotenv.config();
 
@@ -89,6 +90,16 @@ User Inquiry: ${prompt || "Analyze grid bottlenecks and recommend multi-agent si
 
   store.on("state_update", (data) => {
     const payload = JSON.stringify({ type: "UPDATE", state: data });
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(payload);
+      }
+    });
+  });
+
+  const intelBus = IntelligenceEventBus.getInstance();
+  intelBus.on('ANY', (event) => {
+    const payload = JSON.stringify({ type: "INTELLIGENCE_EVENT", event });
     wss.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
         client.send(payload);

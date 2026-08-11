@@ -249,6 +249,20 @@ export class TrafficEngine {
     this.bus.publish('signal.optimization', 'coordinator', { nodeId, mode: 'autonomous_ai' });
   }
 
+  public forceSignalPhase(nodeId: string, phase: string, duration: number) {
+    this.nodes = this.nodes.map(n => {
+      if (n.id === nodeId) {
+        return {
+          ...n,
+          currentPhase: phase,
+          signalState: 'green' // Reset to green for the new phase
+          // In a real implementation we would track time remaining based on duration
+        };
+      }
+      return n;
+    });
+  }
+
   public updateNodeSignalMode(nodeId: string, mode: SignalMode) {
     this.nodes = this.nodes.map(n => (n.id === nodeId ? { ...n, signalMode: mode } : n));
     this.bus.publish('signal.optimization', nodeId, { nodeId, mode });

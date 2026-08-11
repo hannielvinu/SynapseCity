@@ -26,6 +26,8 @@ interface OverviewDashboardProps {
   emergencyUnits: EmergencyUnit[];
   cameraFeeds: CameraFeed[];
   vehicles: any[];
+  intelligenceEvents?: any[];
+  predictions?: any[];
   isSimulating: boolean;
   onNavigateTab: (tab: NavigationTab) => void;
   onOpenAiAssistant: () => void;
@@ -39,6 +41,8 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
   emergencyUnits,
   cameraFeeds,
   vehicles,
+  intelligenceEvents = [],
+  predictions = [],
   isSimulating,
   onNavigateTab,
   onOpenAiAssistant
@@ -194,38 +198,33 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
                 <Cpu className="w-4 h-4 text-cyan-400" />
                 <span>Simulated Agent Logs</span>
               </h3>
-              <button
-                onClick={onOpenAiAssistant}
-                className="text-[11px] text-cyan-400 hover:text-cyan-300 font-bold flex items-center gap-1"
-              >
-                <Sparkles className="w-3 h-3" /> Copilot
+              <button onClick={() => onNavigateTab('predictive')} className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1 transition-colors">
+                View All <ArrowUpRight className="w-3 h-3" />
               </button>
             </div>
-
-            <div className="space-y-2 max-h-52 overflow-y-auto pr-1 text-xs">
-              <div className="p-2.5 bg-slate-950/60 rounded-xl border border-slate-800/80 text-slate-300">
-                <div className="flex items-center justify-between text-[10px] text-slate-400 mb-0.5">
-                  <span className="text-cyan-400 font-mono font-bold">Node-3 Silicon Quarter</span>
-                  <span>1 min ago</span>
+            <div className="p-4 flex-1 flex flex-col gap-3 overflow-y-auto max-h-[300px] custom-scrollbar">
+              {intelligenceEvents.slice(0, 5).map((ev, i) => (
+                <div key={i} className="flex gap-3 items-start border-l-2 border-indigo-500 pl-3 py-1">
+                  <div className="flex-1">
+                    <p className="text-xs font-semibold text-slate-300">
+                      {ev.type === 'AGENT_PROPOSAL_APPROVED' ? 'Decision Executed' : 
+                       ev.type === 'PREDICTION_UPDATED' ? 'Prediction Generated' : 
+                       ev.type}
+                    </p>
+                    <p className="text-[11px] text-slate-400 mt-1">
+                      {ev.data.reason || JSON.stringify(ev.data).substring(0, 50) + "..."}
+                    </p>
+                  </div>
+                  <span className="text-[10px] text-slate-500 whitespace-nowrap">
+                    {new Date(ev.timestamp).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                  </span>
                 </div>
-                <p className="text-[11px]">Extended Phase 2 green window by +12s to absorb shuttle platoon surge.</p>
-              </div>
-
-              <div className="p-2.5 bg-slate-950/60 rounded-xl border border-slate-800/80 text-slate-300">
-                <div className="flex items-center justify-between text-[10px] text-slate-400 mb-0.5">
-                  <span className="text-emerald-400 font-mono font-bold">Corridor Optimization</span>
-                  <span>3 mins ago</span>
+              ))}
+              {intelligenceEvents.length === 0 && (
+                <div className="h-full flex items-center justify-center text-slate-500 text-sm font-semibold italic">
+                  Awaiting Intelligence Events...
                 </div>
-                <p className="text-[11px]">Synchronized 5th Ave nodes (Node-1 & Node-2) for smooth 50km/h wave flow.</p>
-              </div>
-
-              <div className="p-2.5 bg-slate-950/60 rounded-xl border border-slate-800/80 text-slate-300">
-                <div className="flex items-center justify-between text-[10px] text-slate-400 mb-0.5">
-                  <span className="text-amber-400 font-mono font-bold">Node-7 River Toll</span>
-                  <span>5 mins ago</span>
-                </div>
-                <p className="text-[11px]">Dynamic toll metering active. Congestion index throttled to prevent bridge bottleneck.</p>
-              </div>
+              )}
             </div>
           </div>
 
