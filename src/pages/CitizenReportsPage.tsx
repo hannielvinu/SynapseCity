@@ -42,8 +42,8 @@ export const CitizenReportsPage: React.FC = () => {
     <div className="space-y-6 font-sans">
       <PageHeader
         title="Citizen Reports & Hazard Triage"
-        subtitle="Crowdsourced citizen reporting tool. AI computer vision instantly cross-verifies reported hazards against local edge camera feeds."
-        badgeText="AI AUTO-TRIAGE"
+        subtitle="Crowdsourced citizen reporting tool. Prototype vision simulates verification of reported hazards against local camera feeds."
+        badgeText="SIMULATED TRIAGE"
         badgeType="cyan"
       />
 
@@ -60,7 +60,7 @@ export const CitizenReportsPage: React.FC = () => {
           {submittedMessage && (
             <div className="p-3 bg-emerald-500/20 border border-emerald-500/40 rounded-xl text-emerald-300 text-xs flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>Report verified by AI vision and logged for operator triage!</span>
+              <span>Report verification simulated and logged for operator triage!</span>
             </div>
           )}
 
@@ -128,7 +128,7 @@ export const CitizenReportsPage: React.FC = () => {
         {/* Community Triage List */}
         <div className="lg:col-span-2 space-y-4">
           <h3 className="text-xs font-extrabold text-slate-200 uppercase tracking-wider">
-            Live Citizen Reports & AI Verification Stream
+            Live Citizen Reports & Verification Stream
           </h3>
 
           <div className="space-y-3">

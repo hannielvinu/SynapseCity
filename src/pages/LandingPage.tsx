@@ -142,7 +142,7 @@ export const LandingPage: React.FC = () => {
           </h1>
 
           <p className="mt-6 text-base sm:text-lg text-slate-300 max-w-3xl mx-auto font-normal leading-relaxed">
-            SynapseCity AI orchestrates citywide traffic signals, computer vision edge cameras, and multi-agent AI networks to eliminate congestion, prioritize emergency corridors, and power sustainable smart cities in real time.
+            SynapseCity AI orchestrates simulated citywide traffic signals, edge cameras, and multi-agent systems to demonstrate congestion reduction and prioritized emergency corridors.
           </p>
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
@@ -167,20 +167,20 @@ export const LandingPage: React.FC = () => {
           {/* Quick Stats Banner */}
           <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
             <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800/90 backdrop-blur-md">
-              <div className="text-2xl font-black text-cyan-400 font-sans">14,850+</div>
-              <div className="text-xs text-slate-400 font-medium mt-1">Autonomous Vehicles Managed</div>
+              <div className="text-2xl font-black text-cyan-400 font-sans">8</div>
+              <div className="text-xs text-slate-400 font-medium mt-1">Simulated Intersections</div>
             </div>
             <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800/90 backdrop-blur-md">
-              <div className="text-2xl font-black text-emerald-400 font-sans">94.2%</div>
-              <div className="text-xs text-slate-400 font-medium mt-1">Signal Optimization Efficiency</div>
+              <div className="text-2xl font-black text-emerald-400 font-sans">Prototype</div>
+              <div className="text-xs text-slate-400 font-medium mt-1">Signal Optimization</div>
             </div>
             <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800/90 backdrop-blur-md">
-              <div className="text-2xl font-black text-blue-400 font-sans">18.4 Tons</div>
+              <div className="text-2xl font-black text-blue-400 font-sans">0 Tons</div>
               <div className="text-xs text-slate-400 font-medium mt-1">Daily CO2 Emissions Reduced</div>
             </div>
             <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800/90 backdrop-blur-md">
-              <div className="text-2xl font-black text-indigo-400 font-sans">142</div>
-              <div className="text-xs text-slate-400 font-medium mt-1">Edge Multi-Agent AI Controllers</div>
+              <div className="text-2xl font-black text-indigo-400 font-sans">8</div>
+              <div className="text-xs text-slate-400 font-medium mt-1">Simulated Edge Controllers</div>
             </div>
           </div>
         </div>
@@ -240,15 +240,15 @@ export const LandingPage: React.FC = () => {
               <ul className="space-y-4 text-xs text-slate-200">
                 <li className="flex items-start gap-3">
                   <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
-                  <span><strong>Sub-Second Adaptation:</strong> Computer vision feeds detect vehicle counts and dynamically switch phase lengths.</span>
+                  <span><strong>Simulated Adaptation:</strong> Prototype vision feeds demonstrate dynamic phase adjustments based on vehicle counts.</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
-                  <span><strong>Smart Green Waves:</strong> V2X siren beacons trigger instant, seamless green corridors for first responders.</span>
+                  <span><strong>Smart Green Waves:</strong> Prototype siren beacons trigger seamless green corridors for first responders.</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
-                  <span><strong>Predictive Congestion Prevention:</strong> Graph neural networks predict bottlenecks 30 minutes before they happen.</span>
+                  <span><strong>Predictive Congestion Forecasts:</strong> Prototype algorithms forecast urban bottlenecks and adjust signals in advance.</span>
                 </li>
               </ul>
             </div>
@@ -275,9 +275,9 @@ export const LandingPage: React.FC = () => {
             <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-5 group-hover:scale-110 transition-transform">
               <Eye className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-bold text-white group-hover:text-cyan-400 transition-colors">Computer Vision Edge Nodes</h3>
+            <h3 className="text-base font-bold text-white group-hover:text-cyan-400 transition-colors">Prototype Vision Edge Nodes</h3>
             <p className="mt-2 text-xs text-slate-400 leading-relaxed">
-              Real-time multi-class object detection (cars, trucks, buses, cyclists, pedestrians) with automatic license plate recognition and speed compliance.
+              Demonstrates real-time multi-class object detection (cars, trucks, buses, cyclists, pedestrians) in a simulated environment.
             </p>
             <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-cyan-400">
               <span>View Vision Feeds</span>
@@ -311,7 +311,7 @@ export const LandingPage: React.FC = () => {
             </div>
             <h3 className="text-base font-bold text-white group-hover:text-amber-400 transition-colors">Predictive Congestion Forecasting</h3>
             <p className="mt-2 text-xs text-slate-400 leading-relaxed">
-              LSTM spatial-temporal neural networks forecast urban bottlenecks 15, 30, and 60 minutes in advance, pre-adjusting adjacent signal networks.
+              Prototype spatial-temporal algorithms forecast urban bottlenecks in advance, pre-adjusting adjacent signal networks.
             </p>
             <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-amber-400">
               <span>Predictive Flow</span>
@@ -326,9 +326,9 @@ export const LandingPage: React.FC = () => {
             <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 mb-5 group-hover:scale-110 transition-transform">
               <Bot className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-bold text-white group-hover:text-blue-400 transition-colors">Multi-Agent AI Mesh</h3>
+            <h3 className="text-base font-bold text-white group-hover:text-blue-400 transition-colors">Multi-Agent AI Mesh (Simulated)</h3>
             <p className="mt-2 text-xs text-slate-400 leading-relaxed">
-              Every intersection operates a localized RL agent that negotiates green time with neighbor nodes to maximize grid throughput without global bottlenecks.
+              Intersections operate a localized heuristic agent that negotiates green time with neighbor nodes to maximize grid throughput.
             </p>
             <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-blue-400">
               <span>Inspect AI Mesh</span>

@@ -19,7 +19,7 @@ export const ComputerVisionView: React.FC<ComputerVisionViewProps> = ({ cameraFe
         <div>
           <h2 className="text-base font-extrabold text-white flex items-center gap-2">
             <Video className="w-5 h-5 text-cyan-400" />
-            <span>Computer Vision Edge Perception Stream</span>
+            <span>Prototype Vision Edge Perception Stream</span>
           </h2>
           <p className="text-xs text-slate-400 mt-0.5">Real-time object classification, speed radar tracking, and vehicle counting pipeline</p>
         </div>
@@ -72,7 +72,7 @@ export const ComputerVisionView: React.FC<ComputerVisionViewProps> = ({ cameraFe
                 {/* Simulated Bounding Box 1 - SUV */}
                 <div className="absolute top-1/4 left-1/4 w-36 h-28 border-2 border-cyan-400/80 bg-cyan-500/10 rounded-xl shadow-lg shadow-cyan-500/20 animate-pulse">
                   <span className="absolute -top-5 left-0 px-2 py-0.5 bg-slate-950 text-cyan-300 border border-cyan-500/40 text-[10px] font-mono font-bold rounded-md">
-                    [SUV: 98.4%] 34mph
+                    [SUV: 98.4%] 54km/h
                   </span>
                 </div>
 
@@ -99,12 +99,12 @@ export const ComputerVisionView: React.FC<ComputerVisionViewProps> = ({ cameraFe
             </div>
 
             <div className="absolute bottom-3 right-3 bg-slate-950/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-800 text-xs font-mono text-cyan-300 font-bold">
-              FPS: 60 | Latency: 12ms | 4K Edge Perception
+              FPS: 30 | Latency: 45ms | Prototype Vision
             </div>
           </div>
 
           {/* Detections Breakdown bar */}
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
             <div className="bg-slate-900/90 p-3.5 rounded-2xl border border-slate-800 text-center">
               <span className="text-slate-400 block text-[11px] font-semibold">Cars</span>
               <span className="text-xl font-extrabold font-mono text-cyan-400 mt-0.5 block">{activeCam.detections.cars}</span>
@@ -121,7 +121,19 @@ export const ComputerVisionView: React.FC<ComputerVisionViewProps> = ({ cameraFe
               <span className="text-slate-400 block text-[11px] font-semibold">Bicycles</span>
               <span className="text-xl font-extrabold font-mono text-emerald-400 mt-0.5 block">{activeCam.detections.bicycles}</span>
             </div>
-            <div className="col-span-2 sm:col-span-1 bg-slate-900/90 p-3.5 rounded-2xl border border-slate-800 text-center">
+            <div className="bg-slate-900/90 p-3.5 rounded-2xl border border-slate-800 text-center">
+              <span className="text-slate-400 block text-[11px] font-semibold">Motorcycles</span>
+              <span className="text-xl font-extrabold font-mono text-blue-400 mt-0.5 block">{activeCam.detections.motorcycles}</span>
+            </div>
+            <div className="bg-slate-900/90 p-3.5 rounded-2xl border border-slate-800 text-center">
+              <span className="text-slate-400 block text-[11px] font-semibold">Scooters</span>
+              <span className="text-xl font-extrabold font-mono text-indigo-400 mt-0.5 block">{activeCam.detections.scooters}</span>
+            </div>
+            <div className="bg-slate-900/90 p-3.5 rounded-2xl border border-slate-800 text-center">
+              <span className="text-slate-400 block text-[11px] font-semibold">Auto Rickshaws</span>
+              <span className="text-xl font-extrabold font-mono text-yellow-400 mt-0.5 block">{activeCam.detections.auto_rickshaws}</span>
+            </div>
+            <div className="bg-slate-900/90 p-3.5 rounded-2xl border border-slate-800 text-center">
               <span className="text-slate-400 block text-[11px] font-semibold">Pedestrians</span>
               <span className="text-xl font-extrabold font-mono text-emerald-300 mt-0.5 block">{activeCam.detections.pedestrians}</span>
             </div>
@@ -148,7 +160,7 @@ export const ComputerVisionView: React.FC<ComputerVisionViewProps> = ({ cameraFe
                   >
                     <div className="flex items-center justify-between font-bold text-xs text-white">
                       <span>{cam.title.split(':')[0]}</span>
-                      <span className="text-emerald-400 font-mono text-[11px]">{cam.avgSpeedMph} mph</span>
+                      <span className="text-emerald-400 font-mono text-[11px]">{cam.avgSpeedKmh} km/h</span>
                     </div>
                     <div className="text-[11px] text-slate-400 mt-1">{cam.district}</div>
                   </div>

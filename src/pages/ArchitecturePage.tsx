@@ -16,28 +16,28 @@ export const ArchitecturePage: React.FC = () => {
       title: 'Ultra-Low Latency Edge Messaging Broker',
       icon: Zap,
       color: 'text-blue-400 border-blue-500/30 bg-blue-500/10',
-      description: 'High-throughput gRPC / MQTT event streaming engine guaranteeing sub-12ms message delivery from physical intersections to local compute nodes.'
+      description: 'High-throughput event streaming engine simulating message delivery from physical intersections to local compute nodes.'
     },
     {
       num: 'Layer 3',
-      title: 'Edge Computer Vision Perception Pipeline',
+      title: 'Simulated Edge Perception Pipeline',
       icon: Eye,
       color: 'text-purple-400 border-purple-500/30 bg-purple-500/10',
-      description: 'Runs optimized 60fps object detection neural networks to identify vehicle types, speed vectors, pedestrian counts, and license plates at the physical edge.'
+      description: 'Simulates object detection to identify vehicle types, speed vectors, pedestrian counts, and license plates at the physical edge.'
     },
     {
       num: 'Layer 4',
-      title: 'Spatial-Temporal Predictive Modeling Engine',
+      title: 'Prototype Predictive Modeling Engine',
       icon: TrendingUp,
       color: 'text-amber-400 border-amber-500/30 bg-amber-500/10',
-      description: 'Graph Convolutional Networks (GCN) combined with LSTM time-series forecasters predict citywide queue buildup 15, 30, and 60 minutes ahead.'
+      description: 'Prototype heuristic forecasting models predict citywide queue buildup.'
     },
     {
       num: 'Layer 5',
-      title: 'Multi-Agent Cooperative Reinforcement Learning Mesh',
+      title: 'Simulated Heuristic Agent Network',
       icon: Bot,
       color: 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10',
-      description: 'Every intersection operates an autonomous PPO RL agent. Agents negotiate green-time allocations with neighboring nodes using game-theoretic equilibrium protocols.'
+      description: 'Every intersection operates a simulated heuristic agent. Agents use localized logic to adjust green-time allocations.'
     },
     {
       num: 'Layer 6',
@@ -51,7 +51,7 @@ export const ArchitecturePage: React.FC = () => {
       title: 'Emergency Siren & Preemption Supervisor',
       icon: ShieldAlert,
       color: 'text-rose-400 border-rose-500/30 bg-rose-500/10',
-      description: 'Overrides standard RL optimization with deterministic green-wave locks whenever V2X sirens or GPS emergency dispatch beacons are identified.'
+      description: 'Overrides standard optimization with deterministic green-wave locks whenever V2X sirens or GPS emergency dispatch beacons are identified.'
     },
     {
       num: 'Layer 8',
@@ -65,8 +65,8 @@ export const ArchitecturePage: React.FC = () => {
   return (
     <div className="space-y-6 font-sans">
       <PageHeader
-        title="SynapseCity AI System Architecture Specification"
-        subtitle="Full 8-layer autonomous urban mobility stack from physical edge sensors to distributed multi-agent game-theoretic signal actuation."
+        title="SynapseCity Prototype System Architecture Specification"
+        subtitle="Prototype 8-layer urban mobility stack simulating edge sensors and localized signal actuation."
         badgeText="8-LAYER STACK"
         badgeType="cyan"
       />

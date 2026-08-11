@@ -69,7 +69,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
             <Activity className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="mt-2">
-            <span className="text-2xl font-black font-mono text-emerald-400">{metrics.avgSpeedMph} <span className="text-xs text-slate-400 font-normal">mph</span></span>
+            <span className="text-2xl font-black font-mono text-emerald-400">{metrics.avgSpeedKmh} <span className="text-xs text-slate-400 font-normal">km/h</span></span>
             <span className="text-[11px] text-emerald-400 font-bold block flex items-center mt-1">
               <ArrowUpRight className="w-3 h-3 mr-0.5" /> +14.2% faster flow
             </span>
@@ -107,7 +107,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
         {/* Stat 5 */}
         <div className="col-span-2 md:col-span-4 lg:col-span-1 bg-gradient-to-br from-cyan-950/60 to-slate-900 p-4 rounded-2xl border border-cyan-800/50 shadow-md flex flex-col justify-between">
           <div className="flex items-center justify-between text-cyan-300 text-xs font-semibold">
-            <span>Multi-Agent Swarm</span>
+            <span>Simulated Agents</span>
             <Cpu className="w-4 h-4 text-cyan-400 animate-pulse" />
           </div>
           <div className="mt-2">
@@ -126,7 +126,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
           <div className="flex items-center justify-between">
             <h2 className="text-base font-extrabold text-white flex items-center space-x-2">
               <Activity className="w-4 h-4 text-cyan-400" />
-              <span>Real-Time Autonomous Traffic Canvas</span>
+              <span>Simulated Traffic Canvas</span>
             </h2>
             <span className="text-xs text-slate-400 font-medium">Click any intersection to inspect signal phases</span>
           </div>
@@ -185,12 +185,11 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
             )}
           </div>
 
-          {/* AI Multi-Agent Intelligence Feed */}
           <div className="bg-slate-900/90 p-5 rounded-2xl border border-slate-800 space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-extrabold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
                 <Cpu className="w-4 h-4 text-cyan-400" />
-                <span>AI Agent Swarm Logs</span>
+                <span>Simulated Agent Logs</span>
               </h3>
               <button
                 onClick={onOpenAiAssistant}
@@ -206,7 +205,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
                   <span className="text-cyan-400 font-mono font-bold">Node-3 Silicon Quarter</span>
                   <span>1 min ago</span>
                 </div>
-                <p className="text-[11px]">Extended Phase 2 green window by +12s to absorb AV shuttle platoon surge.</p>
+                <p className="text-[11px]">Extended Phase 2 green window by +12s to absorb shuttle platoon surge.</p>
               </div>
 
               <div className="p-2.5 bg-slate-950/60 rounded-xl border border-slate-800/80 text-slate-300">
@@ -214,7 +213,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
                   <span className="text-emerald-400 font-mono font-bold">Corridor Optimization</span>
                   <span>3 mins ago</span>
                 </div>
-                <p className="text-[11px]">Synchronized 5th Ave nodes (Node-1 & Node-2) for smooth 32mph wave flow.</p>
+                <p className="text-[11px]">Synchronized 5th Ave nodes (Node-1 & Node-2) for smooth 50km/h wave flow.</p>
               </div>
 
               <div className="p-2.5 bg-slate-950/60 rounded-xl border border-slate-800/80 text-slate-300">
@@ -269,7 +268,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
 
               <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between text-[11px] text-white font-bold">
                 <span className="truncate">{cam.district}</span>
-                <span className="text-emerald-400 font-mono">{cam.avgSpeedMph} mph</span>
+                <span className="text-emerald-400 font-mono">{cam.avgSpeedKmh} km/h</span>
               </div>
             </div>
 

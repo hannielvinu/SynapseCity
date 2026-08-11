@@ -44,7 +44,7 @@ export class RoutingEngine {
             const neighborIncident = this.incidents.find(i => i.intersectionId === neighbor && i.status !== 'resolved');
             
             // To simulate detour re-routing: if neighbor has incident, we avoid it unless necessary
-            if (neighborIncident && neighbor !== destinationId && Math.random() > 0.3) {
+            if (neighborIncident && neighbor !== destinationId) {
               continue; // detour logic
             }
             queue.push([...path, neighbor]);
@@ -101,7 +101,7 @@ export class RoutingEngine {
       totalDelay += 30; // Rain/fog delay
     }
 
-    const baseSpeedMps = 15; // ~34mph
+    const baseSpeedMps = 15; // ~54kmh
     const travelTime = (distance / baseSpeedMps) + totalDelay;
 
     return {

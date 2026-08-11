@@ -19,9 +19,9 @@ export const DashboardPage: React.FC<DashboardPageProps> = (props) => {
   return (
     <div className="space-y-6">
       <PageHeader 
-        title="Autonomous Traffic Command Center"
-        subtitle="Real-time multi-agent signal optimization, edge computer vision telemetry, and active emergency corridors."
-        badgeText="SYSTEM OPTIMAL (94.2%)"
+        title="Prototype Traffic Command Center"
+        subtitle="Simulated multi-agent signal optimization and prototype edge telemetry."
+        badgeText="PROTOTYPE"
         badgeType="emerald"
       />
 

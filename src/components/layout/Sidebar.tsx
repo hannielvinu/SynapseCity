@@ -41,11 +41,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { route: 'dashboard', path: '/dashboard', label: 'Command Center', icon: LayoutDashboard },
     { route: 'traffic', path: '/traffic', label: 'Live Traffic', icon: Activity },
     { route: 'intersections', path: '/intersections', label: 'Intersections', icon: GitCommit },
+    { route: 'incidents', path: '/incidents', label: 'Incident Desk', icon: AlertTriangle, badge: activeIncidentsCount, color: 'text-amber-400 bg-amber-500/20' },
     { route: 'emergency', path: '/emergency', label: 'Emergency Corridors', icon: Siren, badge: activeEmergencyCount, color: 'text-rose-400 bg-rose-500/20' },
     { route: 'predictions', path: '/predictions', label: 'Predictive Flow', icon: TrendingUp },
-    { route: 'digital-twin', path: '/digital-twin', label: 'Digital Twin Sandbox', icon: Cpu },
     { route: 'agents', path: '/agents', label: 'AI Agent Network', icon: Bot, color: 'text-cyan-400 bg-cyan-500/20' },
-    { route: 'incidents', path: '/incidents', label: 'Incident Desk', icon: AlertTriangle, badge: activeIncidentsCount, color: 'text-amber-400 bg-amber-500/20' },
+    { route: 'digital-twin', path: '/digital-twin', label: 'Digital Twin Sandbox', icon: Cpu },
     { route: 'analytics', path: '/analytics', label: 'Mobility Analytics', icon: BarChart3 },
     { route: 'citizen-reports', path: '/citizen-reports', label: 'Citizen Reports', icon: Users },
     { route: 'architecture', path: '/architecture', label: 'System Architecture', icon: Layers }
@@ -167,7 +167,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 ONLINE
               </span>
             </div>
-            <p className="text-[10px] text-slate-400">142 Edge AI Nodes active at 12ms latency.</p>
+            <p className="text-[10px] text-slate-400">8 simulated edge nodes active.</p>
           </div>
         </div>
       </aside>

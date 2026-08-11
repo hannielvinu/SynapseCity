@@ -59,7 +59,7 @@ export const DigitalTwinPage: React.FC<DigitalTwinPageProps> = ({
     start: '1. Traffic Start',
     congestion: '2. Congestion Formation',
     prediction: '3. Prediction Alert',
-    intervention: '4. AI Intervention',
+    intervention: '4. Agent Intervention',
     recovery: '5. Traffic Recovery'
   };
 
@@ -153,7 +153,7 @@ export const DigitalTwinPage: React.FC<DigitalTwinPageProps> = ({
                         : 'bg-slate-900 text-slate-400 border border-transparent'
                     }`}
                   >
-                    AI Agent Optimization
+                    Heuristic Agent Optimization
                   </button>
                 </div>
               </div>

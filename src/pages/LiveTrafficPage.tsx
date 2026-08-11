@@ -21,8 +21,8 @@ export const LiveTrafficPage: React.FC<LiveTrafficPageProps> = ({ cameraFeeds, v
     <div className="space-y-6">
       <PageHeader
         title="Live Traffic & Computer Vision Feeds"
-        subtitle="4K edge AI perception pipeline performing multi-class vehicle detection, velocity radar scanning, and license plate optical character recognition."
-        badgeText="4K VISION (60 FPS)"
+        subtitle="Prototype perception pipeline performing multi-class vehicle detection, velocity radar scanning, and license plate optical character recognition."
+        badgeText="PROTOTYPE VISION"
         badgeType="cyan"
       />
 
@@ -40,8 +40,8 @@ export const LiveTrafficPage: React.FC<LiveTrafficPageProps> = ({ cameraFeeds, v
           </div>
 
           {/* Filter Toggles */}
-          <div className="flex items-center space-x-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-[11px]">
-            {['all', 'car', 'truck', 'bus'].map((type) => (
+          <div className="flex flex-wrap items-center space-x-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-[11px]">
+            {['all', 'car', 'truck', 'bus', 'motorcycle', 'scooter', 'auto_rickshaw'].map((type) => (
               <button
                 key={type}
                 onClick={() => setFilterType(type)}
@@ -94,7 +94,7 @@ export const LiveTrafficPage: React.FC<LiveTrafficPageProps> = ({ cameraFeeds, v
                       <span>{Math.floor(vehicle.progress)}%</span>
                     </div>
                   </td>
-                  <td className="py-3.5 px-4 font-bold text-slate-100">{Math.floor(vehicle.speedMph)} mph</td>
+                  <td className="py-3.5 px-4 font-bold text-slate-100">{Math.floor(vehicle.speedKmh)} km/h</td>
                   <td className="py-3.5 px-4">
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                       vehicle.status === 'queued' ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'

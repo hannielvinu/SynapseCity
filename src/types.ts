@@ -32,7 +32,7 @@ export interface IntersectionNode {
   signalMode: SignalMode;
   queueLength: number; // in meters or vehicle count
   vehicleCount: number;
-  avgSpeedMph: number;
+  avgSpeedKmh: number;
   densityScore: number; // 0 - 100
   currentPhase: string;
   phaseTimeRemaining: number; // seconds
@@ -57,8 +57,11 @@ export interface CameraFeed {
     buses: number;
     bicycles: number;
     pedestrians: number;
+    motorcycles: number;
+    scooters: number;
+    auto_rickshaws: number;
   };
-  avgSpeedMph: number;
+  avgSpeedKmh: number;
   licensePlatesScanned: number;
   speedViolations: number;
   incidentFlag?: string;
@@ -93,7 +96,7 @@ export interface TransitRoute {
 
 export interface CityMetrics {
   totalActiveVehicles: number;
-  avgSpeedMph: number;
+  avgSpeedKmh: number;
   congestionIndex: number; // 0 - 100%
   co2SavedTonsToday: number;
   activeAiAgents: number;

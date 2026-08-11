@@ -7,6 +7,23 @@
     },
     "strategy": "ai",
     "results": {
+      "avgDelaySeconds": 40,
+      "travelTimeSeconds": 480,
+      "queueLength": 9,
+      "throughput": 273,
+      "emergencyEtaSeconds": 0
+    },
+    "id": "sim-1786462611314",
+    "timestamp": "11/8/2026 9:06:51 pm"
+  },
+  {
+    "config": {
+      "trafficSurge": 60,
+      "weather": "dense_fog",
+      "speedMultiplier": 1
+    },
+    "strategy": "ai",
+    "results": {
       "avgDelaySeconds": 33,
       "travelTimeSeconds": 396,
       "queueLength": 9,

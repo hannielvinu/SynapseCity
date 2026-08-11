@@ -32,7 +32,7 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
             <TrendingUp className="w-5 h-5 text-emerald-400" />
             <span>Predictive Congestion Forecasting & Environmental Impact</span>
           </h2>
-          <p className="text-xs text-slate-400 mt-0.5">Machine learning trend predictions and city-wide carbon emission reduction models</p>
+          <p className="text-xs text-slate-400 mt-0.5">Prototype trend predictions and simulated carbon emission reduction models</p>
         </div>
 
         <span className="px-3.5 py-1.5 bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 rounded-full text-xs font-mono font-bold">
@@ -55,7 +55,7 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
             </div>
             <div className="flex items-center space-x-1.5">
               <span className="w-3 h-3 bg-emerald-500 rounded"></span>
-              <span className="text-white font-bold">AI Multi-Agent Control</span>
+              <span className="text-white font-bold">Simulated Heuristic Control</span>
             </div>
           </div>
         </div>
@@ -74,11 +74,11 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
                     style={{ height: `${baseVal}%` }}
                     title={`Unmanaged: ${baseVal}%`}
                   ></div>
-                  {/* AI bar */}
+                  {/* Simulated bar */}
                   <div
                     className="w-3/8 bg-emerald-500 hover:bg-emerald-400 rounded-t transition-all shadow-md shadow-emerald-500/30"
                     style={{ height: `${aiVal}%` }}
-                    title={`AI Controlled: ${aiVal}%`}
+                    title={`Heuristic Controlled: ${aiVal}%`}
                   ></div>
                 </div>
                 <span className="text-[10px] font-mono text-slate-400">{hour}</span>
@@ -88,7 +88,7 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
         </div>
 
         <p className="text-xs text-slate-400 text-center italic">
-          * AI Multi-Agent Signal Optimization reduces peak rush hour congestion index by up to <strong className="text-emerald-400 font-mono">45.4%</strong>.
+          * Simulated heuristic optimization reduces peak rush hour congestion index by up to <strong className="text-emerald-400 font-mono">45.4%</strong>.
         </p>
       </div>
 

@@ -84,7 +84,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ metrics, history =
             <h3 className="text-xs font-extrabold text-slate-200 uppercase tracking-wider flex items-center gap-2">
               <BarChart3 className="w-4 h-4 text-cyan-400" /> Historic Simulation Delay Comparisons
             </h3>
-            <p className="text-[11px] text-slate-400 mt-0.5">Aggregate comparison of baseline delay vs AI optimization runs</p>
+            <p className="text-[11px] text-slate-400 mt-0.5">Aggregate comparison of baseline delay vs heuristic optimization runs</p>
           </div>
 
           <div className="flex items-center space-x-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-[11px]">
@@ -130,11 +130,11 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ metrics, history =
                     style={{ height: `${baseHeight}%` }}
                     title={`Baseline Delay: ${baseVal.toFixed(0)}s`}
                   ></div>
-                  {/* AI bar */}
+                  {/* Heuristic bar */}
                   <div
                     className="w-1/3 bg-emerald-500 hover:bg-emerald-400 rounded-t transition-all shadow-md shadow-emerald-500/20"
                     style={{ height: `${aiHeight}%` }}
-                    title={`AI Optimized Delay: ${aiVal.toFixed(0)}s`}
+                    title={`Heuristic Optimized Delay: ${aiVal.toFixed(0)}s`}
                   ></div>
                 </div>
                 <span className="text-[10px] font-mono text-slate-400">{dateString}</span>

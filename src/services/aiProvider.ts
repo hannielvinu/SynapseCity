@@ -36,7 +36,7 @@ export class DeterministicDecisionProvider implements AIProvider {
       return {
         recommendedPhase: "EMERGENCY CORRIDOR GREEN WAVE LOCK",
         duration: 45,
-        reason: "Critical Siren Preemption: Automated V2X green wave lock applied for ambulance corridor clearance.",
+        reason: "Critical Siren Preemption: Automated green wave lock applied for ambulance corridor clearance.",
         confidence: 1.0
       };
     }

@@ -17,8 +17,8 @@ export const IntersectionIntelligencePage: React.FC<IntersectionIntelligencePage
     <div className="space-y-6">
       <PageHeader
         title="Intersection Intelligence & Signal Optimization"
-        subtitle="Distributed edge reinforcement learning controllers managing dynamic green times, cross-bound queue balance, and pedestrian clearance windows."
-        badgeText="100% EDGE SYNC"
+        subtitle="Heuristic controllers managing dynamic green times, cross-bound queue balance, and pedestrian clearance windows."
+        badgeText="PROTOTYPE HEURISTICS"
         badgeType="emerald"
       />
 

@@ -131,7 +131,7 @@ export class PrototypeSimulationEngine implements SimulationEngine {
           progress: 0,
           originNodeId: targetNode.id,
           targetNodeId: nextTargetId,
-          speedMph: speed,
+          speedKmh: speed,
           status: 'moving'
         };
       }
@@ -140,7 +140,7 @@ export class PrototypeSimulationEngine implements SimulationEngine {
         ...veh,
         progress: newProgress,
         status: newStatus,
-        speedMph: speed
+        speedKmh: speed
       };
     });
 
@@ -151,14 +151,14 @@ export class PrototypeSimulationEngine implements SimulationEngine {
       const queuedCount = approachingVehicles.filter(v => v.status === 'queued').length;
 
       const calculatedDensity = Math.min(99, Math.floor((vehicleCount * 8) + (queuedCount * 4) + (surge * 0.2)));
-      const avgSpeed = Math.max(12, Math.floor(35 - (calculatedDensity * 0.22) - (weatherFactor === 1 ? 0 : 6)));
+      const avgSpeed = Math.max(15, Math.floor(65 - (calculatedDensity * 0.35) - (weatherFactor === 1 ? 0 : 10)));
 
       return {
         ...node,
         vehicleCount,
         queueLength: queuedCount,
         densityScore: calculatedDensity,
-        avgSpeedMph: avgSpeed
+        avgSpeedKmh: avgSpeed
       };
     });
 
@@ -186,13 +186,13 @@ export class PrototypeSimulationEngine implements SimulationEngine {
     });
 
     // E. Aggregated metrics calculation
-    const avgGridSpeed = Math.floor(updatedNodes.reduce((acc, n) => acc + n.avgSpeedMph, 0) / updatedNodes.length);
+    const avgGridSpeed = Math.floor(updatedNodes.reduce((acc, n) => acc + n.avgSpeedKmh, 0) / updatedNodes.length);
     const avgCongestion = Math.floor(updatedNodes.reduce((acc, n) => acc + n.densityScore, 0) / updatedNodes.length);
 
     const metrics: CityMetrics = {
       ...state.metrics,
       totalActiveVehicles: vehicles.length + (surge * 2),
-      avgSpeedMph: avgGridSpeed,
+      avgSpeedKmh: avgGridSpeed,
       congestionIndex: avgCongestion,
       co2SavedTonsToday: Math.min(45, state.metrics.co2SavedTonsToday + (multiplier * 0.001 * (1.5 - avgCongestion/60)))
     };
@@ -204,13 +204,16 @@ export class PrototypeSimulationEngine implements SimulationEngine {
 
       return {
         ...cam,
-        avgSpeedMph: node.avgSpeedMph,
+        avgSpeedKmh: node.avgSpeedKmh,
         detections: {
-          cars: Math.floor(node.vehicleCount * 0.75),
-          trucks: Math.floor(node.vehicleCount * 0.15),
+          cars: Math.floor(node.vehicleCount * 0.35),
+          trucks: Math.floor(node.vehicleCount * 0.05),
           buses: Math.floor(node.vehicleCount * 0.05),
           bicycles: Math.floor(node.pedestrianWaiting * 0.2),
-          pedestrians: node.pedestrianWaiting
+          pedestrians: node.pedestrianWaiting,
+          motorcycles: Math.floor(node.vehicleCount * 0.30),
+          scooters: Math.floor(node.vehicleCount * 0.15),
+          auto_rickshaws: Math.floor(node.vehicleCount * 0.10)
         }
       };
     });

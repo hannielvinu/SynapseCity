@@ -12,8 +12,8 @@ export const PredictionsPage: React.FC<PredictionsPageProps> = ({ metrics }) => 
     <div className="space-y-6">
       <PageHeader
         title="Predictive Congestion Forecasting"
-        subtitle="Graph neural networks & spatial-temporal LSTM engines forecasting bottlenecks 15, 30, and 60 minutes in advance to apply proactive mitigation waves."
-        badgeText="LSTM FORECAST (96.4% ACC)"
+        subtitle="Prototype algorithms forecasting bottlenecks in advance to demonstrate proactive mitigation waves."
+        badgeText="PROTOTYPE FORECAST"
         badgeType="amber"
       />
 

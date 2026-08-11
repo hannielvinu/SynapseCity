@@ -29,9 +29,9 @@ export const AIAgentsPage: React.FC<AIAgentsPageProps> = ({
   return (
     <div className="space-y-6 font-sans">
       <PageHeader
-        title="Multi-Agent AI Mesh Operations"
-        subtitle="Distributed reinforcement learning agents performing cooperative game-theoretic signal negotiation and global grid equilibrium."
-        badgeText={`${agents.length} ACTIVE AGENTS`}
+        title="Simulated Agent Network Operations"
+        subtitle="Prototype heuristic agents performing localized signal timing adjustments."
+        badgeText={`${agents.length} PROTOTYPE AGENTS`}
         badgeType="cyan"
       />
 
@@ -41,9 +41,9 @@ export const AIAgentsPage: React.FC<AIAgentsPageProps> = ({
           <div className="flex items-center justify-between pb-3 border-b border-slate-800">
             <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-300 flex items-center gap-2">
               <Bot className="w-4 h-4 text-cyan-400" />
-              <span>Active Agent Roster</span>
+              <span>Simulated Agent Roster</span>
             </h3>
-            <span className="text-[10px] text-emerald-400 font-mono font-bold">100% ONLINE</span>
+            <span className="text-[10px] text-emerald-400 font-mono font-bold">PROTOTYPE</span>
           </div>
 
           <div className="space-y-2.5 max-h-[500px] overflow-y-auto custom-scrollbar">
@@ -103,7 +103,7 @@ export const AIAgentsPage: React.FC<AIAgentsPageProps> = ({
                 <span className="text-lg font-extrabold font-mono text-cyan-300">{selectedAgent.latencyMs} ms</span>
               </div>
               <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-                <span className="text-slate-400 block mb-1">Decision Accuracy</span>
+                <span className="text-slate-400 block mb-1">Simulated Confidence</span>
                 <span className="text-lg font-extrabold font-mono text-emerald-300">{selectedAgent.accuracyRate ? selectedAgent.accuracyRate.toFixed(1) : 98}%</span>
               </div>
               <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">

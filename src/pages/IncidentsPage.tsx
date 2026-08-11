@@ -33,7 +33,7 @@ export const IncidentsPage: React.FC<IncidentsPageProps> = ({
     <div className="space-y-6 font-sans">
       <PageHeader
         title="Incident Operations Desk"
-        subtitle="Computer vision anomaly detection, stalled vehicle dispatching, and automated signal mitigation logic."
+        subtitle="Simulated anomaly detection and automated signal mitigation logic."
         badgeText={`${incidents.filter(i => i.status !== 'resolved').length} UNRESOLVED INCIDENTS`}
         badgeType="amber"
       />
@@ -106,7 +106,7 @@ export const IncidentsPage: React.FC<IncidentsPageProps> = ({
             {/* AI Action Taken */}
             <div className="p-4 bg-slate-950 rounded-xl border border-cyan-500/30 space-y-2">
               <h4 className="text-xs font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-2">
-                <Zap className="w-4 h-4" /> AI Auto-Mitigation Executed
+                <Zap className="w-4 h-4" /> Simulated Mitigation Executed
               </h4>
               <p className="text-xs text-slate-200 leading-relaxed font-sans">{selectedIncident.aiActionTaken}</p>
             </div>

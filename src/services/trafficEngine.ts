@@ -34,8 +34,8 @@ import { SimulationHistory, SimulationRun, SimulationResult } from './simulation
 
 export interface SimulatedVehicle {
   id: string;
-  type: 'car' | 'truck' | 'bus' | 'emergency';
-  speedMph: number;
+  type: 'car' | 'truck' | 'bus' | 'emergency' | 'motorcycle' | 'scooter' | 'auto_rickshaw';
+  speedKmh: number;
   direction: 'N' | 'S' | 'E' | 'W';
   currentRoad: string; // e.g. "node-1->node-2"
   progress: number; // 0 to 100% along the road segment
@@ -96,13 +96,13 @@ export class TrafficEngine {
     };
     this.metrics = {
       totalActiveVehicles: 0,
-      avgSpeedMph: 35,
+      avgSpeedKmh: 45,
       congestionIndex: 20,
-      co2SavedTonsToday: 18.4,
-      activeAiAgents: 142,
+      co2SavedTonsToday: 0,
+      activeAiAgents: 8,
       emergencyCorridorsActive: 0,
-      signalOptimizationEfficiency: 94.2,
-      pedestrianSafetyScore: 98.6
+      signalOptimizationEfficiency: 0,
+      pedestrianSafetyScore: 0
     };
 
     // Initialize Intersection Agents
@@ -119,10 +119,12 @@ export class TrafficEngine {
       for (const targetId of node.connectedNodes) {
         const count = 4 + Math.floor(Math.random() * 5);
         for (let i = 0; i < count; i++) {
+          const rand = Math.random();
+          const vehicleType = rand > 0.95 ? 'truck' : rand > 0.90 ? 'bus' : rand > 0.60 ? 'car' : rand > 0.30 ? 'motorcycle' : rand > 0.15 ? 'scooter' : 'auto_rickshaw';
           this.vehicles.push({
             id: `v-${vehicleId++}`,
-            type: Math.random() > 0.85 ? 'truck' : Math.random() > 0.93 ? 'bus' : 'car',
-            speedMph: 25 + Math.random() * 15,
+            type: vehicleType,
+            speedKmh: 35 + Math.random() * 25,
             direction: Math.random() > 0.5 ? 'N' : 'E',
             currentRoad: `${node.id}->${targetId}`,
             progress: Math.random() * 100,
@@ -151,7 +153,7 @@ export class TrafficEngine {
     // Compute strategy comparisons dynamically
     const baseCongestion = this.metrics.congestionIndex;
     const isAi = this.activeStrategy === 'ai';
-    const delay = isAi ? Math.max(12, 45 - (this.metrics.avgSpeedMph)) : Math.max(25, 78 - (this.metrics.avgSpeedMph));
+    const delay = isAi ? Math.max(12, 60 - (this.metrics.avgSpeedKmh)) : Math.max(25, 90 - (this.metrics.avgSpeedKmh));
     
     const comparison: SimulationResult = {
       avgDelaySeconds: delay,
@@ -200,7 +202,7 @@ export class TrafficEngine {
 
   public saveCurrentRun() {
     const isAi = this.activeStrategy === 'ai';
-    const delay = isAi ? Math.max(12, 45 - (this.metrics.avgSpeedMph)) : Math.max(25, 78 - (this.metrics.avgSpeedMph));
+    const delay = isAi ? Math.max(12, 60 - (this.metrics.avgSpeedKmh)) : Math.max(25, 90 - (this.metrics.avgSpeedKmh));
     
     this.simHistory.addRun({
       config: {

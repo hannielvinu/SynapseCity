@@ -39,13 +39,6 @@ export const Footer: React.FC = () => {
             >
               Citizen Portal
             </a>
-            <span className="text-slate-700">•</span>
-            <a
-              href="/status"
-              className="transition-colors hover:text-cyan-400"
-            >
-              System Status
-            </a>
           </nav>
         </div>
 

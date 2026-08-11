@@ -15,7 +15,7 @@ export const EmergencyCommandPage: React.FC<EmergencyCommandPageProps> = (props)
     <div className="space-y-6">
       <PageHeader
         title="Smart Emergency Corridor Command"
-        subtitle="V2X acoustic siren triangulation & GPS preemption locking dynamic green waves for ambulances and fire rescue units."
+        subtitle="Simulated GPS preemption locking dynamic green waves for ambulances and fire rescue units."
         badgeText={`${props.emergencyUnits.length} ACTIVE DISPATCHES`}
         badgeType={props.emergencyUnits.length > 0 ? 'rose' : 'emerald'}
       />
