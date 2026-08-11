@@ -10,6 +10,7 @@ interface DashboardPageProps {
   metrics: CityMetrics;
   emergencyUnits: EmergencyUnit[];
   cameraFeeds: CameraFeed[];
+  vehicles: any[];
   isSimulating: boolean;
   onNavigateTab: (tab: NavigationTab) => void;
   onOpenAiAssistant: () => void;

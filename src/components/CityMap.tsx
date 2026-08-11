@@ -8,6 +8,7 @@ interface CityMapProps {
   onSelectNode: (nodeId: string) => void;
   emergencyUnits: EmergencyUnit[];
   cameraFeeds: CameraFeed[];
+  vehicles: any[];
   isSimulating: boolean;
 }
 
@@ -17,23 +18,13 @@ export const CityMap: React.FC<CityMapProps> = ({
   onSelectNode,
   emergencyUnits,
   cameraFeeds,
+  vehicles,
   isSimulating
 }) => {
   const [showHeatmap, setShowHeatmap] = useState(true);
   const [showCameras, setShowCameras] = useState(true);
   const [showEmergencyPath, setShowEmergencyPath] = useState(true);
   const [showAvLanes, setShowAvLanes] = useState(true);
-
-  // Animated vehicle positions
-  const [tick, setTick] = useState(0);
-
-  useEffect(() => {
-    if (!isSimulating) return;
-    const interval = setInterval(() => {
-      setTick((prev) => (prev + 1) % 100);
-    }, 100);
-    return () => clearInterval(interval);
-  }, [isSimulating]);
 
   // Find active emergency paths
   const activeEmergencyUnit = emergencyUnits.find(u => u.greenWaveActive && u.status === 'en_route');
@@ -188,17 +179,14 @@ export const CityMap: React.FC<CityMapProps> = ({
                     />
                   )}
 
-                  {/* Animated Vehicles on road segment */}
-                  {isSimulating && [0.2, 0.5, 0.8].map((offset, i) => {
-                    const progress = ((tick * 1.5 + offset * 100) % 100) / 100;
-                    const vx = source.x + (target.x - source.x) * progress;
-                    const vy = source.y + (target.y - source.y) * progress;
+                  {/* Animated Vehicles on road segment via Authoritative State */}
+                  {vehicles.filter(v => v.currentRoad === `${source.id}->${target.id}`).map((v, i) => {
                     return (
                       <circle
-                        key={`veh-${source.id}-${target.id}-${i}`}
-                        cx={`${vx}%`}
-                        cy={`${vy}%`}
-                        r={isEmergencySegment ? '3.5' : '2'}
+                        key={`veh-${v.id}`}
+                        cx={`${v.position.x}%`}
+                        cy={`${v.position.y}%`}
+                        r={isEmergencySegment ? '3.5' : '2.5'}
                         fill={isEmergencySegment ? '#38bdf8' : '#38bdf8'}
                         opacity="0.9"
                       />

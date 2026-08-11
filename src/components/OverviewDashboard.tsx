@@ -25,6 +25,7 @@ interface OverviewDashboardProps {
   metrics: CityMetrics;
   emergencyUnits: EmergencyUnit[];
   cameraFeeds: CameraFeed[];
+  vehicles: any[];
   isSimulating: boolean;
   onNavigateTab: (tab: NavigationTab) => void;
   onOpenAiAssistant: () => void;
@@ -37,6 +38,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
   metrics,
   emergencyUnits,
   cameraFeeds,
+  vehicles,
   isSimulating,
   onNavigateTab,
   onOpenAiAssistant
@@ -137,6 +139,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
             onSelectNode={onSelectNode}
             emergencyUnits={emergencyUnits}
             cameraFeeds={cameraFeeds}
+            vehicles={vehicles}
             isSimulating={isSimulating}
           />
         </div>
