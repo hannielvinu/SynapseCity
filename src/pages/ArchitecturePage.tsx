@@ -9,7 +9,7 @@ export const ArchitecturePage: React.FC = () => {
       title: 'Heterogeneous Sensor & Data Ingestion',
       icon: Radio,
       color: 'text-cyan-400 border-cyan-500/30 bg-cyan-500/10',
-      description: 'Ingests real-time high-frequency V2X beacon data, induction loop pulse counters, 4K camera feeds, GPS telemetry, and citizen emergency mobile reports.'
+      description: 'Simulates ingestion of high-frequency beacon data, pulse counters, camera feeds, GPS telemetry, and citizen emergency mobile reports.'
     },
     {
       num: 'Layer 2',
@@ -44,21 +44,21 @@ export const ArchitecturePage: React.FC = () => {
       title: 'Digital Twin Simulation & Stress-Test Sandbox',
       icon: Cpu,
       color: 'text-indigo-400 border-indigo-500/30 bg-indigo-500/10',
-      description: 'Simulates extreme monsoon rainfall, major stadium evacuation surges, and AV truck platoons before pushing optimized signal weights to hardware.'
+      description: 'Simulates extreme monsoon rainfall, major stadium evacuation surges, and AV truck platoons before logging optimized signal weights.'
     },
     {
       num: 'Layer 7',
       title: 'Emergency Siren & Preemption Supervisor',
       icon: ShieldAlert,
       color: 'text-rose-400 border-rose-500/30 bg-rose-500/10',
-      description: 'Overrides standard optimization with deterministic green-wave locks whenever V2X sirens or GPS emergency dispatch beacons are identified.'
+      description: 'Overrides standard optimization with deterministic green-wave locks whenever simulated sirens or GPS emergency dispatch beacons are identified.'
     },
     {
       num: 'Layer 8',
-      title: 'Hardware Actuation & NEMA Controller Interfacing',
+      title: 'Target Architecture: Hardware Actuation & NEMA Controller Interfacing',
       icon: Layers,
       color: 'text-cyan-300 border-cyan-400/30 bg-cyan-400/10',
-      description: 'Translates high-level phase commands into fail-safe physical signal phase changes on NEMA TS2, ATC, and 2070 traffic light controller hardware.'
+      description: 'Planned integration to translate high-level phase commands into physical signal phase changes on NEMA TS2, ATC, and 2070 hardware.'
     }
   ];
 

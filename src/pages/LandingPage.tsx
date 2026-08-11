@@ -175,8 +175,8 @@ export const LandingPage: React.FC = () => {
               <div className="text-xs text-slate-400 font-medium mt-1">Signal Optimization</div>
             </div>
             <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800/90 backdrop-blur-md">
-              <div className="text-2xl font-black text-blue-400 font-sans">0 Tons</div>
-              <div className="text-xs text-slate-400 font-medium mt-1">Daily CO2 Emissions Reduced</div>
+              <div className="text-2xl font-black text-blue-400 font-sans">Pending</div>
+              <div className="text-xs text-slate-400 font-medium mt-1">Estimated Emissions Impact</div>
             </div>
             <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800/90 backdrop-blur-md">
               <div className="text-2xl font-black text-indigo-400 font-sans">8</div>
@@ -221,7 +221,7 @@ export const LandingPage: React.FC = () => {
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="w-1.5 h-1.5 rounded-full bg-rose-500 mt-1.5 shrink-0" />
-                  <span><strong>Excess CO2 Emissions:</strong> Idle vehicles consume thousands of gallons of excess fuel daily in gridlock.</span>
+                  <span><strong>Excess Emissions:</strong> Idle vehicles consume excess fuel daily in gridlock.</span>
                 </li>
               </ul>
             </div>

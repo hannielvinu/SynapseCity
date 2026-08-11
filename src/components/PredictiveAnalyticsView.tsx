@@ -36,7 +36,7 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
         </div>
 
         <span className="px-3.5 py-1.5 bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 rounded-full text-xs font-mono font-bold">
-          Net CO2 Saved: -{metrics.co2SavedTonsToday} Tons
+          Estimated Emissions Impact: Pending
         </span>
       </div>
 

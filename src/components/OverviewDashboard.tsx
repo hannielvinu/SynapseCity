@@ -93,13 +93,13 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
         {/* Stat 4 */}
         <div className="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 shadow-md flex flex-col justify-between">
           <div className="flex items-center justify-between text-slate-400 text-xs font-semibold">
-            <span>CO2 Saved Today</span>
+            <span>Estimated Emissions Impact</span>
             <Zap className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="mt-2">
-            <span className="text-2xl font-black font-mono text-emerald-300">-{metrics.co2SavedTonsToday} <span className="text-xs text-slate-400 font-normal">tons</span></span>
-            <span className="text-[11px] text-emerald-400 font-bold block mt-1">
-              Equivalent to 840 trees
+            <span className="text-2xl font-black font-mono text-emerald-300">Prototype</span>
+            <span className="text-[11px] text-slate-500 font-bold block mt-1">
+              Pending Calculation
             </span>
           </div>
         </div>

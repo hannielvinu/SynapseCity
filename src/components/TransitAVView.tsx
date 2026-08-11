@@ -62,8 +62,8 @@ export const TransitAVView: React.FC<TransitAVViewProps> = ({ transitRoutes }) =
             </div>
 
             <div className="p-2.5 bg-slate-950 rounded-lg border border-slate-800 flex items-center justify-between text-xs">
-              <span className="text-slate-400">CO2 Saved Today:</span>
-              <span className="font-mono font-bold text-emerald-400">{(route.co2ReductionKgToday / 1000).toFixed(1)} Tons</span>
+              <span className="text-slate-400">Estimated Emissions Impact:</span>
+              <span className="font-mono font-bold text-emerald-400">Simulated</span>
             </div>
           </div>
         ))}

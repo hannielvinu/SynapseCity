@@ -31,7 +31,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ metrics, history =
     <div className="space-y-6 font-sans">
       <PageHeader
         title="Mobility Analytics & ESG Carbon Portal"
-        subtitle="Historical travel time savings, CO2 emission offsets, and signal optimization benchmarks across municipal districts."
+        subtitle="Historical travel time savings and simulated signal optimization benchmarks across municipal districts."
         badgeText="ESG AUDITED"
         badgeType="emerald"
       />
@@ -40,12 +40,12 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ metrics, history =
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 space-y-2">
           <div className="flex items-center justify-between text-slate-400 text-xs">
-            <span>Daily CO2 Reduction</span>
+            <span>Estimated Emissions Impact</span>
             <Zap className="w-4 h-4 text-emerald-400" />
           </div>
-          <div className="text-2xl font-black font-mono text-emerald-400">-{metrics.co2SavedTonsToday.toFixed(3)} Tons</div>
-          <div className="text-[11px] text-emerald-400 font-semibold flex items-center gap-1">
-            <ArrowUpRight className="w-3 h-3" /> +14.2% vs monthly baseline
+          <div className="text-2xl font-black font-mono text-emerald-400">Prototype</div>
+          <div className="text-[11px] text-slate-500 font-semibold flex items-center gap-1">
+            Pending calculation
           </div>
         </div>
 
