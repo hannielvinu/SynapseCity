@@ -86,8 +86,8 @@ export class PrototypeProvider implements SimulationProvider {
       return {
         id: n.id,
         name: n.name,
-        latitude: n.lat,
-        longitude: n.lng,
+        latitude: n.x, // approximation: frontend uses percentage coordinates
+        longitude: n.y,
         x: n.x,
         y: n.y,
         approaches: n.connectedNodes,

@@ -21,7 +21,7 @@ export const ComputerVisionView: React.FC<ComputerVisionViewProps> = ({ cameraFe
             <Video className="w-5 h-5 text-cyan-400" />
             <span>Prototype Vision Edge Perception Stream</span>
           </h2>
-          <p className="text-xs text-slate-400 mt-0.5">Real-time object classification, speed radar tracking, and vehicle counting pipeline</p>
+          <p className="text-xs text-slate-400 mt-0.5">Simulated object classification with placeholder images. No actual YOLO/OpenCV pipeline connected.</p>
         </div>
 
         {/* Vision Overlay Controls */}

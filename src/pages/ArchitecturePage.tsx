@@ -30,7 +30,7 @@ export const ArchitecturePage: React.FC = () => {
       title: 'Prototype Predictive Modeling Engine',
       icon: TrendingUp,
       color: 'text-amber-400 border-amber-500/30 bg-amber-500/10',
-      description: 'Prototype heuristic forecasting models predict citywide queue buildup.'
+      description: 'Prototype heuristic forecasting models predict citywide queue buildup at 15/30/60 min horizons using rule-based congestion analysis.'
     },
     {
       num: 'Layer 5',
@@ -44,14 +44,14 @@ export const ArchitecturePage: React.FC = () => {
       title: 'Digital Twin Simulation & Stress-Test Sandbox',
       icon: Cpu,
       color: 'text-indigo-400 border-indigo-500/30 bg-indigo-500/10',
-      description: 'Simulates extreme monsoon rainfall, major stadium evacuation surges, and AV truck platoons before logging optimized signal weights.'
+      description: 'Isolated snapshot comparison engine. Captures live state, runs baseline vs strategy scenarios on cloned data, and derives measured performance recommendations.'
     },
     {
       num: 'Layer 7',
       title: 'Emergency Siren & Preemption Supervisor',
       icon: ShieldAlert,
       color: 'text-rose-400 border-rose-500/30 bg-rose-500/10',
-      description: 'Overrides standard optimization with deterministic green-wave locks whenever simulated sirens or GPS emergency dispatch beacons are identified.'
+      description: 'Lifecycle-managed emergency corridors with SafetyValidator-protected signal preemption. Routes through PREPARING → ACTIVE → RESTORING → COMPLETED states.'
     },
     {
       num: 'Layer 8',
@@ -86,7 +86,7 @@ export const ArchitecturePage: React.FC = () => {
                     <h3 className="text-base font-extrabold text-white">{layer.title}</h3>
                   </div>
                 </div>
-                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                <CheckCircle2 className={`w-5 h-5 ${idx === 7 ? 'text-amber-400' : 'text-emerald-400'}`} />
               </div>
               <p className="text-xs text-slate-300 leading-relaxed pl-14 font-normal">{layer.description}</p>
             </div>

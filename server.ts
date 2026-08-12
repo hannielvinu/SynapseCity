@@ -111,7 +111,12 @@ User Inquiry: ${prompt || "Analyze grid bottlenecks and recommend multi-agent si
     // Send initial authoritative state
     ws.send(JSON.stringify({ 
       type: "INIT", 
-      state: { snapshot: store.getSnapshot(), status: store.getStatus() } 
+      state: { 
+        snapshot: store.getSnapshot(), 
+        status: store.getStatus(),
+        corridors: store.getCorridors(),
+        digitalTwinComparison: store.getDigitalTwinComparison()
+      } 
     }));
 
     ws.on("message", (message) => {

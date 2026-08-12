@@ -100,6 +100,12 @@ function OperatorAppContent() {
   const [intelligenceEvents, setIntelligenceEvents] = useState<any[]>([]);
   const [predictions, setPredictions] = useState<any[]>([]);
 
+  // Phase 4 Emergency Corridor & Digital Twin State
+  const [corridors, setCorridors] = useState<any[]>([]);
+  const [digitalTwinComparison, setDigitalTwinComparison] = useState<any>(null);
+  const [capturedSnapshotId, setCapturedSnapshotId] = useState<string | null>(null);
+  const [digitalTwinStatus, setDigitalTwinStatus] = useState<'idle' | 'capturing' | 'running' | 'completed'>('idle');
+
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>('node-1');
   const [isSimulating, setIsSimulating] = useState(true);
 
@@ -200,6 +206,13 @@ function OperatorAppContent() {
               emergencyEtaSeconds: 0
             });
             setHistory(message.state.history || []);
+
+            // Phase 4: Corridor + Digital Twin state
+            if (message.state.corridors) setCorridors(message.state.corridors);
+            if (message.state.digitalTwinComparison) {
+              setDigitalTwinComparison(message.state.digitalTwinComparison);
+              setDigitalTwinStatus('completed');
+            }
           } else if (message.type === 'INTELLIGENCE_EVENT') {
             const ev = message.event;
             
@@ -219,6 +232,31 @@ function OperatorAppContent() {
                 }
                 return [...prev, ev.data];
               });
+            }
+
+            // Phase 4: Digital Twin events
+            if (ev.type === 'DIGITAL_TWIN_SNAPSHOT_CAPTURED') {
+              setCapturedSnapshotId(ev.data.snapshotId);
+              setDigitalTwinStatus('idle');
+            }
+            if (ev.type === 'DIGITAL_TWIN_RUN_COMPLETED') {
+              setDigitalTwinComparison(ev.data);
+              setDigitalTwinStatus('completed');
+            }
+
+            // Phase 4: Corridor events
+            if (ev.type?.startsWith('EMERGENCY_CORRIDOR_')) {
+              if (ev.data?.corridor) {
+                setCorridors(prev => {
+                  const idx = prev.findIndex((c: any) => c.id === ev.data.corridor.id);
+                  if (idx >= 0) {
+                    const updated = [...prev];
+                    updated[idx] = ev.data.corridor;
+                    return updated;
+                  }
+                  return [...prev, ev.data.corridor];
+                });
+              }
             }
           }
         } catch (e) {
@@ -330,6 +368,36 @@ function OperatorAppContent() {
     }
   };
 
+  // Phase 4: Digital Twin handlers
+  const handleCaptureSnapshot = () => {
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      setDigitalTwinStatus('capturing');
+      socketRef.current.send(JSON.stringify({ type: 'CAPTURE_SNAPSHOT' }));
+      // The snapshot ID will come back via intelligence event
+      // For now, use a synthetic ID that the server will match
+      const syntheticId = `dtsnapshot-${Date.now()}`;
+      setCapturedSnapshotId(syntheticId);
+      setTimeout(() => setDigitalTwinStatus('idle'), 1000);
+    }
+  };
+
+  const handleRunDigitalTwin = (scenarioType: string) => {
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN && capturedSnapshotId) {
+      setDigitalTwinStatus('running');
+      socketRef.current.send(JSON.stringify({
+        type: 'RUN_DIGITAL_TWIN',
+        snapshotId: capturedSnapshotId,
+        scenario: {
+          name: scenarioType,
+          description: `${scenarioType} scenario comparison`,
+          scenarioType: scenarioType,
+          strategy: 'ai',
+          durationTicks: 50
+        }
+      }));
+    }
+  };
+
   const handleNavigateTab = (tab: NavigationTab) => {
     switch (tab) {
       case 'overview': navigate('/dashboard'); break;
@@ -424,6 +492,7 @@ function OperatorAppContent() {
               nodes={nodes}
               onDispatchEmergency={handleDispatchEmergency}
               onClearEmergency={handleClearEmergency}
+              corridors={corridors}
             />
           </OperatorLayout>
         } />
@@ -450,6 +519,11 @@ function OperatorAppContent() {
               onSetStrategy={handleSetStrategy}
               onSaveRun={handleSaveRun}
               onSetSumoEnabled={handleSetSumoEnabled}
+              digitalTwinComparison={digitalTwinComparison}
+              digitalTwinStatus={digitalTwinStatus}
+              capturedSnapshotId={capturedSnapshotId}
+              onCaptureSnapshot={handleCaptureSnapshot}
+              onRunDigitalTwin={handleRunDigitalTwin}
             />
           </OperatorLayout>
         } />

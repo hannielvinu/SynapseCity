@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { PageHeader } from '../components/layout/PageHeader';
 import { SimulationConfig } from '../types';
 import { PRESET_SCENARIOS } from '../data/mockData';
-import { Cpu, Play, Pause, RefreshCw, CloudRain, Sun, Flame, Wind, Sliders, CheckCircle2, Save, Activity, Settings, Database } from 'lucide-react';
+import { Cpu, Play, Pause, RefreshCw, CloudRain, Sun, Flame, Wind, Sliders, CheckCircle2, Save, Activity, Settings, Database, Camera, Beaker, ArrowRight, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
 interface DigitalTwinPageProps {
   simulationConfig: SimulationConfig;
@@ -18,6 +18,11 @@ interface DigitalTwinPageProps {
   onSetStrategy: (strategy: 'baseline' | 'ai') => void;
   onSaveRun: () => void;
   onSetSumoEnabled: (enabled: boolean) => void;
+  digitalTwinComparison?: any;
+  digitalTwinStatus?: 'idle' | 'capturing' | 'running' | 'completed';
+  capturedSnapshotId?: string | null;
+  onCaptureSnapshot?: () => void;
+  onRunDigitalTwin?: (scenarioType: string) => void;
 }
 
 export const DigitalTwinPage: React.FC<DigitalTwinPageProps> = ({
@@ -33,7 +38,12 @@ export const DigitalTwinPage: React.FC<DigitalTwinPageProps> = ({
   onResetSimulation,
   onSetStrategy,
   onSaveRun,
-  onSetSumoEnabled
+  onSetSumoEnabled,
+  digitalTwinComparison,
+  digitalTwinStatus = 'idle',
+  capturedSnapshotId,
+  onCaptureSnapshot,
+  onRunDigitalTwin
 }) => {
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const [sumoToggle, setSumoToggle] = useState<boolean>(false);
@@ -332,6 +342,131 @@ export const DigitalTwinPage: React.FC<DigitalTwinPageProps> = ({
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Phase 4: Isolated Digital Twin Comparison */}
+      <div className="bg-slate-900/90 rounded-2xl border border-indigo-500/30 p-6 space-y-5">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+          <h3 className="text-sm font-extrabold text-white flex items-center gap-2">
+            <Beaker className="w-4 h-4 text-indigo-400" />
+            Isolated Digital Twin — Snapshot Comparison
+          </h3>
+          <span className="text-[9px] px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 font-mono font-bold">
+            SIMULATED SANDBOX
+          </span>
+        </div>
+
+        <p className="text-[11px] text-slate-400 leading-relaxed">
+          Capture an isolated snapshot of the live simulation, then run baseline vs. coordinated strategy scenarios on the clone.
+          The live simulation is never mutated by Digital Twin runs.
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <button
+            onClick={onCaptureSnapshot}
+            disabled={digitalTwinStatus === 'running'}
+            className="px-4 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg disabled:opacity-50"
+          >
+            <Camera className="w-4 h-4" />
+            {digitalTwinStatus === 'capturing' ? 'Capturing...' : 'Capture Snapshot'}
+          </button>
+
+          <button
+            onClick={() => onRunDigitalTwin && onRunDigitalTwin('BASELINE')}
+            disabled={!capturedSnapshotId || digitalTwinStatus === 'running'}
+            className="px-4 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all bg-cyan-600 hover:bg-cyan-500 text-white shadow-lg disabled:opacity-50"
+          >
+            <Play className="w-4 h-4" />
+            {digitalTwinStatus === 'running' ? 'Simulating...' : 'Run Comparison'}
+          </button>
+
+          <div className={`px-4 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border ${
+            capturedSnapshotId 
+              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+              : 'bg-slate-950 border-slate-800 text-slate-500'
+          }`}>
+            {capturedSnapshotId ? (
+              <><CheckCircle2 className="w-4 h-4" /> Snapshot Ready</>
+            ) : (
+              'No Snapshot'
+            )}
+          </div>
+        </div>
+
+        {/* Comparison Results */}
+        {digitalTwinComparison && (
+          <div className="space-y-4 pt-4 border-t border-slate-800">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center text-xs">
+              {[
+                { label: 'Speed Delta', value: digitalTwinComparison.differences?.speedDelta, unit: ' km/h', positive: true },
+                { label: 'Queue Delta', value: digitalTwinComparison.differences?.queueDelta, unit: ' cars', positive: false },
+                { label: 'Throughput Delta', value: digitalTwinComparison.differences?.throughputDelta, unit: ' veh', positive: true },
+                { label: 'Delay Delta', value: digitalTwinComparison.differences?.delayDelta, unit: 's', positive: false }
+              ].map((metric, i) => {
+                const val = metric.value || 0;
+                const isGood = metric.positive ? val > 0 : val < 0;
+                const isNeutral = Math.abs(val) < 0.5;
+                return (
+                  <div key={i} className="p-3 bg-slate-950 rounded-xl border border-slate-800">
+                    <span className="text-[9px] text-slate-400 block font-sans mb-1">{metric.label}</span>
+                    <div className="flex items-center justify-center gap-1">
+                      {isNeutral ? <Minus className="w-3 h-3 text-slate-500" /> : isGood ? <TrendingUp className="w-3 h-3 text-emerald-400" /> : <TrendingDown className="w-3 h-3 text-rose-400" />}
+                      <span className={`text-sm font-bold font-mono ${
+                        isNeutral ? 'text-slate-400' : isGood ? 'text-emerald-400' : 'text-rose-400'
+                      }`}>
+                        {val > 0 ? '+' : ''}{val.toFixed(1)}{metric.unit}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Recommendation */}
+            <div className={`p-4 rounded-xl border text-xs ${
+              digitalTwinComparison.recommendation === 'STRATEGY_FAVORED' 
+                ? 'bg-emerald-500/10 border-emerald-500/30'
+                : digitalTwinComparison.recommendation === 'BASELINE_FAVORED'
+                ? 'bg-rose-500/10 border-rose-500/30'
+                : 'bg-slate-950 border-slate-800'
+            }`}>
+              <div className="flex items-center gap-2 mb-2">
+                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                  digitalTwinComparison.recommendation === 'STRATEGY_FAVORED' 
+                    ? 'bg-emerald-500/20 text-emerald-300'
+                    : digitalTwinComparison.recommendation === 'BASELINE_FAVORED'
+                    ? 'bg-rose-500/20 text-rose-300'
+                    : 'bg-slate-800 text-slate-400'
+                }`}>
+                  {(digitalTwinComparison.recommendation || 'INCONCLUSIVE').replace(/_/g, ' ')}
+                </span>
+              </div>
+              <p className="text-slate-300 leading-relaxed">{digitalTwinComparison.explanation || 'No explanation available.'}</p>
+            </div>
+
+            {/* Baseline vs Strategy side by side */}
+            {digitalTwinComparison.baselineMetrics && digitalTwinComparison.strategyMetrics && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-slate-950 rounded-xl border border-rose-500/20 text-xs space-y-2">
+                  <h5 className="font-bold text-rose-300 uppercase tracking-wider text-[10px]">Baseline (Fixed Cycle)</h5>
+                  <div className="font-mono text-slate-400 space-y-1">
+                    <div className="flex justify-between"><span>Avg Speed:</span><span className="text-slate-200">{digitalTwinComparison.baselineMetrics.averageSpeedKmh?.toFixed(1)} km/h</span></div>
+                    <div className="flex justify-between"><span>Avg Queue:</span><span className="text-slate-200">{digitalTwinComparison.baselineMetrics.averageQueueLength?.toFixed(1)}</span></div>
+                    <div className="flex justify-between"><span>Avg Delay:</span><span className="text-slate-200">{digitalTwinComparison.baselineMetrics.averageDelaySeconds?.toFixed(1)}s</span></div>
+                  </div>
+                </div>
+                <div className="p-4 bg-slate-950 rounded-xl border border-emerald-500/20 text-xs space-y-2">
+                  <h5 className="font-bold text-emerald-300 uppercase tracking-wider text-[10px]">Strategy (Heuristic Agent)</h5>
+                  <div className="font-mono text-slate-400 space-y-1">
+                    <div className="flex justify-between"><span>Avg Speed:</span><span className="text-slate-200">{digitalTwinComparison.strategyMetrics.averageSpeedKmh?.toFixed(1)} km/h</span></div>
+                    <div className="flex justify-between"><span>Avg Queue:</span><span className="text-slate-200">{digitalTwinComparison.strategyMetrics.averageQueueLength?.toFixed(1)}</span></div>
+                    <div className="flex justify-between"><span>Avg Delay:</span><span className="text-slate-200">{digitalTwinComparison.strategyMetrics.averageDelaySeconds?.toFixed(1)}s</span></div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

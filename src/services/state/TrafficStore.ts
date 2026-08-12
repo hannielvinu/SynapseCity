@@ -6,12 +6,18 @@ import { TrafficSnapshot, SimulationState, Scenario } from '../../domain/types';
 import { SimulationConfiguration } from '../../config/simulation';
 import { CityCoordinator } from '../../intelligence/coordination/CityCoordinator';
 import { DefaultIntelligenceConfig } from '../../intelligence/config';
+import { EmergencyCorridorManager } from '../../intelligence/emergency/EmergencyCorridorManager';
+import { SafetyValidator } from '../../intelligence/safety/SafetyValidator';
+import { DigitalTwinEngine } from '../digitalTwin/DigitalTwinEngine';
+import { DigitalTwinScenario, EmergencyCorridor, DigitalTwinComparison } from '../../intelligence/types';
 
 export class TrafficStore extends EventEmitter {
   private activeProvider: SimulationProvider;
   private sumoProvider: SumoProvider;
   private prototypeProvider: PrototypeProvider;
   private coordinator: CityCoordinator;
+  private corridorManager: EmergencyCorridorManager;
+  private digitalTwin: DigitalTwinEngine;
   
   private currentSnapshot: TrafficSnapshot | null = null;
   private tickInterval: NodeJS.Timeout | null = null;
@@ -22,6 +28,8 @@ export class TrafficStore extends EventEmitter {
     this.sumoProvider = new SumoProvider();
     this.prototypeProvider = new PrototypeProvider();
     this.coordinator = new CityCoordinator();
+    this.corridorManager = new EmergencyCorridorManager(new SafetyValidator());
+    this.digitalTwin = new DigitalTwinEngine();
     // Default to prototype until initialized
     this.activeProvider = this.prototypeProvider;
   }
@@ -75,6 +83,11 @@ export class TrafficStore extends EventEmitter {
         this.executeDecisions(decisions);
       }
 
+      // Monitor active emergency corridors
+      if (this.currentSnapshot) {
+        this.corridorManager.monitorCorridors(this.currentSnapshot);
+      }
+
       this.broadcastState();
     }, 1000); // 1 tick per second
   }
@@ -88,10 +101,6 @@ export class TrafficStore extends EventEmitter {
             this.activeProvider.engine.forceSignalPhase(decision.intersectionId, decision.requestedChange.phase, decision.requestedChange.duration);
             decision.approvalStatus = 'EXECUTED';
             decision.executedAt = Date.now();
-            
-            // Re-publish the executed state back to the intelligence bus
-            // The intelligence bus is a singleton so we could inject it, but the coordinator handles logic.
-            // For now, updating the status is sufficient for local state execution mapping.
           }
         } catch (e) {
           console.error("Failed to execute approved decision:", e);
@@ -104,7 +113,9 @@ export class TrafficStore extends EventEmitter {
     if (this.currentSnapshot) {
       this.emit('state_update', {
         snapshot: this.currentSnapshot,
-        status: this.activeProvider.getStatus()
+        status: this.activeProvider.getStatus(),
+        corridors: this.corridorManager.getCorridors(),
+        digitalTwinComparison: this.digitalTwin.getLastComparison()
       });
     }
   }
@@ -115,6 +126,14 @@ export class TrafficStore extends EventEmitter {
 
   getStatus(): SimulationState {
     return this.activeProvider.getStatus();
+  }
+
+  getCorridors(): EmergencyCorridor[] {
+    return this.corridorManager.getCorridors();
+  }
+
+  getDigitalTwinComparison(): DigitalTwinComparison | null {
+    return this.digitalTwin.getLastComparison();
   }
 
   // Adapter methods for specific engine commands (fallback mapped to Prototype for now)
@@ -185,9 +204,26 @@ export class TrafficStore extends EventEmitter {
         case "UPDATE_PHASE_DURATION":
           engine.updatePhaseDuration(command.nodeId, command.duration);
           break;
-        case "DISPATCH_EMERGENCY":
+        case "DISPATCH_EMERGENCY": {
           engine.dispatchEmergency(command.unit);
+          // Create emergency corridor
+          if (this.currentSnapshot) {
+            const state = engine.getFullState();
+            const unit = state.emergencyUnits.find((u: any) => u.callsign === command.unit.callsign);
+            if (unit && unit.pathNodeIds.length > 0) {
+              const corridor = this.corridorManager.createCorridor(
+                unit.id || `eu-${Date.now()}`,
+                unit.callsign,
+                unit.pathNodeIds,
+                unit.etaSeconds,
+                `Emergency dispatch: ${unit.callsign}`
+              );
+              // Activate the corridor through SafetyValidator
+              this.corridorManager.activateCorridor(corridor.id, this.currentSnapshot);
+            }
+          }
           break;
+        }
         case "CLEAR_EMERGENCY":
           engine.clearEmergency(command.unitId);
           break;
@@ -212,6 +248,53 @@ export class TrafficStore extends EventEmitter {
         case "RESUME_SIMULATION":
           this.resume();
           break;
+        // Digital Twin Commands
+        case "CAPTURE_SNAPSHOT": {
+          if (this.currentSnapshot) {
+            const snapshot = this.digitalTwin.captureSnapshot(this.currentSnapshot);
+            this.emit('snapshot_captured', snapshot);
+          }
+          break;
+        }
+        case "RUN_DIGITAL_TWIN": {
+          if (command.snapshotId && command.scenario) {
+            const scenario: DigitalTwinScenario = command.scenario;
+            const baselineScenario: DigitalTwinScenario = { ...scenario, strategy: 'baseline', name: 'Baseline' };
+            const strategyScenario: DigitalTwinScenario = { ...scenario, strategy: 'ai', name: 'Coordinated Strategy' };
+            
+            const baselineRun = this.digitalTwin.runScenario(command.snapshotId, baselineScenario);
+            const strategyRun = this.digitalTwin.runScenario(command.snapshotId, strategyScenario);
+            const comparison = this.digitalTwin.compare(baselineRun, strategyRun);
+            
+            this.emit('digital_twin_completed', comparison);
+          }
+          break;
+        }
+        case "APPLY_STRATEGY": {
+          // Route strategy application through SafetyValidator
+          if (this.currentSnapshot && command.strategyChanges) {
+            for (const change of command.strategyChanges) {
+              const proposal = {
+                id: `strategy-apply-${Date.now()}-${change.intersectionId}`,
+                agentId: 'DigitalTwinEngine',
+                intersectionId: change.intersectionId,
+                timestamp: Date.now(),
+                requestedPhase: change.phase,
+                requestedDuration: change.duration,
+                reason: 'Applying Digital Twin recommended strategy',
+                expectedImpact: 'Strategy validated through Digital Twin comparison',
+                priority: 60,
+                confidence: 0.9,
+                source: 'Operator'
+              };
+              const validation = this.coordinator.validateExternalProposal(proposal, this.currentSnapshot);
+              if (validation.approved) {
+                engine.forceSignalPhase(change.intersectionId, change.phase, change.duration);
+              }
+            }
+          }
+          break;
+        }
       }
     }
   }
@@ -221,3 +304,4 @@ export class TrafficStore extends EventEmitter {
     await this.activeProvider.shutdown();
   }
 }
+

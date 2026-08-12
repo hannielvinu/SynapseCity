@@ -53,7 +53,7 @@ export const AIAgentsPage: React.FC<AIAgentsPageProps> = ({
       <PageHeader
         title="Simulated Agent Network Operations"
         subtitle="Prototype heuristic agents performing localized signal timing adjustments."
-        badgeText={`${agents.length} PROTOTYPE AGENTS`}
+        badgeText={`${derivedAgents.length} PROTOTYPE AGENTS`}
         badgeType="cyan"
       />
 
