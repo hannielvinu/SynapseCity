@@ -17,12 +17,12 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ metrics, history =
 
   const avgAiDelay = aiRuns.length > 0
     ? aiRuns.reduce((acc, r) => acc + r.results.avgDelaySeconds, 0) / aiRuns.length
-    : 28;
+    : 0;
   const avgBaseDelay = baselineRuns.length > 0
     ? baselineRuns.reduce((acc, r) => acc + r.results.avgDelaySeconds, 0) / baselineRuns.length
-    : 62;
+    : 0;
 
-  const delaySavings = Math.max(1.5, (avgBaseDelay - avgAiDelay) / 60);
+  const delaySavings = (avgBaseDelay > 0 && avgAiDelay > 0) ? ((avgBaseDelay - avgAiDelay) / 60) : 0;
 
   // Group runs by date for comparison charts
   const uniqueDates = Array.from(new Set(history.map(r => r.timestamp.split(' ')[0]))).slice(0, 7).reverse();
@@ -54,8 +54,12 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ metrics, history =
             <span>Avg Delay Savings</span>
             <Clock className="w-4 h-4 text-cyan-400" />
           </div>
-          <div className="text-2xl font-black font-mono text-cyan-300">-{delaySavings.toFixed(1)} min</div>
-          <div className="text-[11px] text-cyan-400 font-semibold">Per commute route leg</div>
+          <div className="text-2xl font-black font-mono text-cyan-300">
+            {delaySavings !== 0 ? `${delaySavings > 0 ? '-' : '+'}${Math.abs(delaySavings).toFixed(1)} min` : 'N/A'}
+          </div>
+          <div className="text-[11px] text-cyan-400 font-semibold">
+            {delaySavings !== 0 ? 'Per commute route leg' : 'No history'}
+          </div>
         </div>
 
         <div className="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 space-y-2">
@@ -105,58 +109,61 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ metrics, history =
         </div>
 
         {/* Visual chart */}
-        <div className="h-64 flex items-end justify-between gap-3 pt-8 pb-2 px-4 bg-slate-950 rounded-xl border border-slate-800/80">
-          {uniqueDates.map((dateString) => {
-            // Find delay averages for this specific date
-            const dateAiRuns = history.filter(r => r.strategy === 'ai' && r.timestamp.startsWith(dateString));
-            const dateBaseRuns = history.filter(r => r.strategy === 'baseline' && r.timestamp.startsWith(dateString));
+        {history.length > 0 ? (
+          <div className="h-64 flex items-end justify-between gap-3 pt-8 pb-2 px-4 bg-slate-950 rounded-xl border border-slate-800/80">
+            {uniqueDates.map((dateString) => {
+              // Find delay averages for this specific date
+              const dateAiRuns = history.filter(r => r.strategy === 'ai' && r.timestamp.startsWith(dateString));
+              const dateBaseRuns = history.filter(r => r.strategy === 'baseline' && r.timestamp.startsWith(dateString));
 
-            const aiVal = dateAiRuns.length > 0 
-              ? dateAiRuns.reduce((acc, r) => acc + r.results.avgDelaySeconds, 0) / dateAiRuns.length
-              : 35;
-            const baseVal = dateBaseRuns.length > 0
-              ? dateBaseRuns.reduce((acc, r) => acc + r.results.avgDelaySeconds, 0) / dateBaseRuns.length
-              : 70;
+              const aiVal = dateAiRuns.length > 0 
+                ? dateAiRuns.reduce((acc, r) => acc + r.results.avgDelaySeconds, 0) / dateAiRuns.length
+                : 0;
+              const baseVal = dateBaseRuns.length > 0
+                ? dateBaseRuns.reduce((acc, r) => acc + r.results.avgDelaySeconds, 0) / dateBaseRuns.length
+                : 0;
 
-            const aiHeight = Math.min(100, Math.max(10, (aiVal / 120) * 100));
-            const baseHeight = Math.min(100, Math.max(10, (baseVal / 120) * 100));
+              const maxVal = Math.max(aiVal, baseVal, 100);
+              const aiHeight = `${(aiVal / maxVal) * 100}%`;
+              const baseHeight = `${(baseVal / maxVal) * 100}%`;
 
-            return (
-              <div key={dateString} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
-                <div className="w-full flex items-end justify-center gap-2 h-full">
-                  {/* Baseline bar */}
-                  <div
-                    className="w-1/3 bg-rose-500/20 hover:bg-rose-500/40 rounded-t transition-all border border-rose-500/10"
-                    style={{ height: `${baseHeight}%` }}
-                    title={`Baseline Delay: ${baseVal.toFixed(0)}s`}
-                  ></div>
-                  {/* Heuristic bar */}
-                  <div
-                    className="w-1/3 bg-emerald-500 hover:bg-emerald-400 rounded-t transition-all shadow-md shadow-emerald-500/20"
-                    style={{ height: `${aiHeight}%` }}
-                    title={`Heuristic Optimized Delay: ${aiVal.toFixed(0)}s`}
-                  ></div>
+              return (
+                <div key={dateString} className="flex flex-col items-center gap-2 flex-1 group">
+                  <div className="flex items-end gap-1.5 w-full h-full relative">
+                    {/* Baseline Bar */}
+                    <div className="flex-1 bg-slate-800/80 rounded-t-sm relative transition-all group-hover:bg-slate-700/80" style={{ height: baseHeight }}>
+                      {baseVal > 0 && <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-[9px] font-mono text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">{Math.round(baseVal)}s</div>}
+                    </div>
+                    {/* AI Bar */}
+                    <div className="flex-1 bg-cyan-500/80 rounded-t-sm relative transition-all group-hover:bg-cyan-400/80" style={{ height: aiHeight }}>
+                      {aiVal > 0 && <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-[9px] font-mono text-cyan-300 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">{Math.round(aiVal)}s</div>}
+                    </div>
+                  </div>
+                  <span className="text-[10px] text-slate-500 font-bold whitespace-nowrap">
+                    {dateString}
+                  </span>
                 </div>
-                <span className="text-[10px] font-mono text-slate-400">{dateString}</span>
-              </div>
-            );
-          })}
-          {uniqueDates.length === 0 && (
-            <div className="w-full h-full flex items-center justify-center text-slate-500 font-sans">
-              No historical data logs recorded.
-            </div>
-          )}
-        </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="h-64 flex flex-col items-center justify-center bg-slate-950 rounded-xl border border-slate-800/80">
+            <History className="w-8 h-8 text-slate-600 mb-2" />
+            <p className="text-sm font-semibold text-slate-400">No completed simulation runs yet.</p>
+            <p className="text-[11px] text-slate-500 mt-1">Run baseline and strategy simulations in the Digital Twin to populate historical analytics.</p>
+          </div>
+        )}
       </div>
 
-      {/* Top Performing Intersections */}
-      <div className="bg-slate-900/90 rounded-2xl border border-slate-800 p-6 space-y-4">
+      {/* History Log */}
+      <div className="bg-slate-900/90 rounded-2xl border border-slate-800 p-6 space-y-4 shadow-xl">
         <h3 className="text-xs font-extrabold text-slate-200 uppercase tracking-wider flex items-center gap-2">
-          <History className="w-4 h-4 text-cyan-400" /> Historic Run Highlights
+          <History className="w-4 h-4 text-emerald-400" /> Recent Benchmark Ledger
         </h3>
 
-        <div className="space-y-2.5 text-xs font-mono">
-          {history.slice(0, 4).map((run, idx) => (
+        {history.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {history.slice(0, 4).map((run, idx) => (
             <div key={idx} className="p-3.5 bg-slate-950 rounded-xl border border-slate-800 flex flex-wrap items-center justify-between gap-3">
               <div>
                 <span className="font-bold text-white text-xs">Run: {run.id.split('-')[1] || run.id}</span>
@@ -170,8 +177,13 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ metrics, history =
                 </span>
               </div>
             </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-6">
+            <p className="text-sm text-slate-500">No recent benchmarks.</p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -155,7 +155,7 @@ export class TrafficStore extends EventEmitter {
       const engine = this.activeProvider.engine;
       
       // Safety Boundary Interception
-      if (['UPDATE_PHASE_DURATION', 'REBALANCE', 'DISPATCH_EMERGENCY'].includes(command.type) && this.currentSnapshot) {
+      if (['UPDATE_PHASE_DURATION', 'REBALANCE', 'DISPATCH_EMERGENCY', 'UPDATE_SIGNAL_MODE', 'CLEAR_EMERGENCY'].includes(command.type) && this.currentSnapshot) {
         
         let targetNodeId = command.nodeId;
         let requestedDuration = command.duration || 45; // default fallback
@@ -163,14 +163,23 @@ export class TrafficStore extends EventEmitter {
         
         // For emergency, figure out the first node
         if (command.type === 'DISPATCH_EMERGENCY') {
-           // We just need the route origin for basic validation mapping
-           // The full routing engine is in TrafficEngine, but we can do a quick lookup or just validate the origin.
            targetNodeId = command.unit.origin;
            source = 'EmergencyDispatcher';
            requestedDuration = 60; // emergencies hold longer
+        } else if (command.type === 'CLEAR_EMERGENCY') {
+           source = 'EmergencyDispatcher';
+           // Find the unit in current snapshot to get a node to validate against
+           const unit = this.currentSnapshot.emergencies.find(u => u.id === command.unitId);
+           if (unit && unit.pathNodeIds.length > 0) {
+             targetNodeId = unit.pathNodeIds[0];
+           } else {
+             // If unit not found, let it pass to allow cleanup of orphaned states
+             targetNodeId = null;
+           }
         }
 
-        const intersection = this.currentSnapshot.intersections.find(i => i.id === targetNodeId);
+        if (targetNodeId) {
+          const intersection = this.currentSnapshot.intersections.find(i => i.id === targetNodeId);
         if (intersection) {
           const proposal = {
             id: `cmd-${Date.now()}`,
@@ -186,10 +195,11 @@ export class TrafficStore extends EventEmitter {
             source
           };
 
-          const validation = this.coordinator.validateExternalProposal(proposal, this.currentSnapshot);
-          if (!validation.approved) {
-            console.warn(`[TrafficStore] Safety Boundary REJECTED command ${command.type}: ${validation.reason}`);
-            return; // DROP COMMAND
+            const validation = this.coordinator.validateExternalProposal(proposal, this.currentSnapshot);
+            if (!validation.approved) {
+              console.warn(`[TrafficStore] Safety Boundary REJECTED command ${command.type}: ${validation.reason}`);
+              return; // DROP COMMAND
+            }
           }
         }
       }

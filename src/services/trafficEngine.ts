@@ -311,11 +311,13 @@ export class TrafficEngine {
     if (unitToClear) {
       this.nodes = this.nodes.map(n => {
         if (unitToClear.pathNodeIds.includes(n.id)) {
+          // Safe restoration: do not force green. Just lift the emergency lock.
+          // The engine's normal tick cycle will handle clearance phases safely.
+          const isAnotherEmergency = this.emergencyUnits.some(u => u.greenWaveActive && u.pathNodeIds.includes(n.id));
           return {
             ...n,
-            signalState: 'green',
-            signalMode: 'autonomous_ai',
-            incidentAlert: undefined
+            signalMode: isAnotherEmergency ? 'emergency_corridor' : 'autonomous_ai',
+            incidentAlert: isAnotherEmergency ? n.incidentAlert : undefined
           };
         }
         return n;
