@@ -27,9 +27,9 @@ store.currentSnapshot = store.activeProvider.getState();
 // Test 1: Valid UPDATE_SIGNAL_MODE
 console.log("\nTest 1: UPDATE_SIGNAL_MODE valid command");
 const node1 = engine.getFullState().nodes[0].id;
-store.executeCommand({ type: 'UPDATE_SIGNAL_MODE', nodeId: node1, mode: 'manual' });
+store.executeCommand({ type: 'UPDATE_SIGNAL_MODE', nodeId: node1, mode: 'manual_override' });
 const updatedNode1 = engine.getFullState().nodes.find((n: any) => n.id === node1);
-if (updatedNode1?.signalMode === 'manual') {
+if (updatedNode1?.signalMode === 'manual_override') {
   console.log("  ✓ Valid UPDATE_SIGNAL_MODE updates mode");
 } else {
   console.log("  X Valid UPDATE_SIGNAL_MODE failed");
@@ -42,7 +42,7 @@ engine['nodes'] = engine['nodes'].map((n: any) => n.id === node1 ? { ...n, signa
 // @ts-ignore
 store.currentSnapshot = store.activeProvider.getState();
 
-store.executeCommand({ type: 'UPDATE_SIGNAL_MODE', nodeId: node1, mode: 'manual' });
+store.executeCommand({ type: 'UPDATE_SIGNAL_MODE', nodeId: node1, mode: 'manual_override' });
 const stateAfterReject = engine.getFullState().nodes.find((n: any) => n.id === node1);
 if (stateAfterReject?.signalMode === 'emergency_corridor') {
   console.log("  ✓ Invalid UPDATE_SIGNAL_MODE rejected by SafetyValidator");
@@ -59,7 +59,7 @@ store.currentSnapshot = store.activeProvider.getState();
 // Test 4: CLEAR_EMERGENCY valid path
 console.log("\nTest 4: CLEAR_EMERGENCY valid path");
 // Setup a mock emergency
-const fakeUnit = { id: 'test-unit-1', callsign: 'Test', pathNodeIds: [node1], greenWaveActive: true };
+const fakeUnit = { id: 'test-unit-1', callsign: 'Test', type: 'ambulance' as const, status: 'en_route' as const, origin: 'Station', destination: 'Hospital', currentProgress: 50, pathNodeIds: [node1], greenWaveActive: true, etaSeconds: 60, timeSavedSeconds: 0 };
 engine['emergencyUnits'].push(fakeUnit);
 engine['nodes'] = engine['nodes'].map((n: any) => n.id === node1 ? { ...n, signalMode: 'emergency_corridor', incidentAlert: 'Test Preemption' } : n);
 // @ts-ignore
@@ -75,7 +75,7 @@ if (restoredNode?.signalMode === 'autonomous_ai' && !engine.getFullState().emerg
 
 // Test 5: safe emergency restoration
 console.log("\nTest 5: Safe emergency restoration (does not force green)");
-const fakeUnit2 = { id: 'test-unit-2', callsign: 'Test 2', pathNodeIds: [node1], greenWaveActive: true };
+const fakeUnit2 = { id: 'test-unit-2', callsign: 'Test 2', type: 'ambulance' as const, status: 'en_route' as const, origin: 'Station', destination: 'Hospital', currentProgress: 50, pathNodeIds: [node1], greenWaveActive: true, etaSeconds: 60, timeSavedSeconds: 0 };
 engine['emergencyUnits'].push(fakeUnit2);
 engine['nodes'] = engine['nodes'].map((n: any) => n.id === node1 ? { ...n, signalState: 'red', signalMode: 'emergency_corridor' } : n);
 // @ts-ignore

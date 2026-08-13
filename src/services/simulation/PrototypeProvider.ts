@@ -99,7 +99,7 @@ export class PrototypeProvider implements SimulationProvider {
         density: n.densityScore,
         averageSpeedKmh: n.avgSpeedKmh,
         neighboringIntersections: n.connectedNodes,
-        operationalMode: n.signalMode === 'manual' ? 'MANUAL' : (n.signalMode === 'emergency_corridor' ? 'EMERGENCY' : 'ADAPTIVE'),
+        operationalMode: n.signalMode === 'manual_override' ? 'MANUAL' : (n.signalMode === 'emergency_corridor' ? 'EMERGENCY' : 'ADAPTIVE'),
         incidentAlert: n.incidentAlert
       };
     });
