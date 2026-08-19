@@ -109,13 +109,22 @@ User Inquiry: ${prompt || "Analyze grid bottlenecks and recommend multi-agent si
 
   wss.on("connection", (ws) => {
     // Send initial authoritative state
+    const fullState = store.getEngineState();
     ws.send(JSON.stringify({ 
       type: "INIT", 
       state: { 
         snapshot: store.getSnapshot(), 
         status: store.getStatus(),
         corridors: store.getCorridors(),
-        digitalTwinComparison: store.getDigitalTwinComparison()
+        digitalTwinComparison: store.getDigitalTwinComparison(),
+        cameraFeeds: fullState.cameraFeeds,
+        agents: fullState.agents,
+        agentLogs: fullState.agentLogs,
+        simConfig: fullState.simConfig,
+        timelineStage: fullState.timelineStage,
+        strategy: fullState.strategy,
+        comparison: fullState.comparison,
+        history: fullState.history
       } 
     }));
 

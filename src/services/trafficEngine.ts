@@ -183,10 +183,10 @@ export class TrafficEngine {
     };
   }
 
-  public updateConfig(config: Partial<SimulationConfig>) {
+  public updateConfig(config: Partial<SimulationConfig> = {}) {
     this.simConfig = { ...this.simConfig, ...config };
     this.simulationAgent.process();
-    if (config.weather) {
+    if (config && config.weather) {
       this.weatherAgent.process();
     }
   }

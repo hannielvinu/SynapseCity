@@ -38,25 +38,42 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
 
   return (
     <header className="h-16 border-b border-slate-800/80 bg-[#070B12]/90 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between z-20 shrink-0 gap-3">
-      {/* Left: Mobile Sidebar Toggle & Command Bar */}
-      <div className="flex items-center gap-3 flex-1 max-w-md min-w-0">
+      {/* Left: Mobile Sidebar Toggle & Operational Header */}
+      <div className="flex flex-col flex-1 min-w-0 justify-center">
         {onToggleSidebar && (
           <button
             onClick={onToggleSidebar}
-            className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white lg:hidden shrink-0"
+            className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white lg:hidden shrink-0 absolute left-4"
             aria-label="Toggle Navigation Menu"
           >
             <Menu className="w-5 h-5" />
           </button>
         )}
-
-        <div className="relative w-full">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-          <input
-            type="text"
-            placeholder="Search intersections, cameras, or AI agents..."
-            className="w-full bg-slate-900/80 border border-slate-800/90 rounded-xl pl-9 pr-4 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/30 transition-all truncate"
-          />
+        
+        <div className="flex flex-col ml-12 lg:ml-0">
+          <div className="flex items-center gap-2">
+            <h1 className="text-slate-100 font-extrabold text-sm tracking-widest uppercase">
+              SYNAPSECITY <span className="text-slate-500 font-normal mx-1">/</span> <span className="text-cyan-400">COIMBATORE URBAN MOBILITY OPERATIONS</span>
+            </h1>
+            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-wider">SYSTEM ONLINE</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 text-[10px] text-slate-400 font-medium mt-1">
+            <span className="text-slate-500 uppercase">Data Sources:</span>
+            <span className="text-cyan-300">Simulation</span>
+            <span className="text-slate-600">•</span>
+            <span className="text-cyan-300">User Reports</span>
+            <span className="text-slate-600">•</span>
+            <span className="text-cyan-300">External Ref Feed</span>
+            <span className="text-slate-600">•</span>
+            <span className="text-cyan-300">Weather</span>
+            <span className="text-slate-600">•</span>
+            <span className="text-cyan-300">Map/Routing</span>
+            <span className="text-slate-600">•</span>
+            <span className="text-slate-500 line-through">Rail Schedule (UNAVAILABLE)</span>
+          </div>
         </div>
       </div>
 

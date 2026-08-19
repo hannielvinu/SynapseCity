@@ -338,9 +338,16 @@ function OperatorAppContent() {
     }
   };
 
-  const handleUpdateConfigValue = (c: Partial<SimulationConfig>) => {
+  const handleUpdateConfigValue = (c: Partial<SimulationConfig> | ((prev: SimulationConfig) => SimulationConfig)) => {
+    let nextConfig: Partial<SimulationConfig>;
+    if (typeof c === 'function') {
+      nextConfig = c(simConfig);
+    } else {
+      nextConfig = c;
+    }
+    setSimConfig(prev => ({ ...prev, ...nextConfig }));
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-      socketRef.current.send(JSON.stringify({ type: 'UPDATE_CONFIG', config: c }));
+      socketRef.current.send(JSON.stringify({ type: 'UPDATE_CONFIG', config: nextConfig }));
     }
   };
 

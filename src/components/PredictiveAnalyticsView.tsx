@@ -1,6 +1,6 @@
 import React from 'react';
 import { CityMetrics } from '../types';
-import { TrendingUp, Zap, CloudRain, Sun, DollarSign, Activity, BarChart3, ShieldCheck } from 'lucide-react';
+import { TrendingUp, Zap, CloudRain, Sun, IndianRupee, Activity, BarChart3, ShieldCheck } from 'lucide-react';
 
 interface PredictiveAnalyticsViewProps {
   metrics: CityMetrics;
@@ -90,7 +90,7 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-slate-900/90 rounded-2xl border border-slate-800 p-5 space-y-3">
           <h3 className="text-xs font-extrabold text-slate-200 uppercase tracking-wider flex items-center gap-2">
-            <DollarSign className="w-4 h-4 text-amber-400" />
+            <IndianRupee className="w-4 h-4 text-amber-400" />
             <span>Dynamic Congestion Toll Metering</span>
           </h3>
 
@@ -100,12 +100,12 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
 
           <div className="space-y-2 text-xs pt-1">
             <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 flex justify-between items-center">
-              <span className="text-slate-300 font-medium">River Bridge Gateway Toll:</span>
-              <span className="font-mono font-bold text-amber-300">$2.50 (Standard)</span>
+              <span className="text-slate-300 font-medium">Airport Gateway Toll:</span>
+              <span className="font-mono font-bold text-amber-300">₹150.00 (Standard)</span>
             </div>
             <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 flex justify-between items-center">
-              <span className="text-slate-300 font-medium">Financial Hub Perimeter:</span>
-              <span className="font-mono font-bold text-emerald-400">$0.00 (Zero Rate / Clear)</span>
+              <span className="text-slate-300 font-medium">Gandhipuram Commercial Core:</span>
+              <span className="font-mono font-bold text-emerald-400">₹0.00 (Zero Rate / Clear)</span>
             </div>
           </div>
         </div>
@@ -123,11 +123,11 @@ export const PredictiveAnalyticsView: React.FC<PredictiveAnalyticsViewProps> = (
           <div className="space-y-2 text-xs pt-1">
             <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 flex justify-between items-center">
               <span className="text-slate-300 font-medium">Idling Fuel Saved Today:</span>
-              <span className="font-mono font-bold text-emerald-300">7,420 Gallons</span>
+              <span className="font-mono font-bold text-slate-500">Pending Simulation Data</span>
             </div>
             <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 flex justify-between items-center">
               <span className="text-slate-300 font-medium">NOx & Particulate Reduction:</span>
-              <span className="font-mono font-bold text-cyan-300">-22.8%</span>
+              <span className="font-mono font-bold text-slate-500">Pending Simulation Data</span>
             </div>
           </div>
         </div>

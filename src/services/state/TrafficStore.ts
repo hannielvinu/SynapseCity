@@ -109,13 +109,26 @@ export class TrafficStore extends EventEmitter {
     }
   }
 
+  public getEngineState() {
+    return this.prototypeProvider.engine.getFullState();
+  }
+
   private broadcastState(): void {
     if (this.currentSnapshot) {
+      const fullState = this.getEngineState();
       this.emit('state_update', {
         snapshot: this.currentSnapshot,
         status: this.activeProvider.getStatus(),
         corridors: this.corridorManager.getCorridors(),
-        digitalTwinComparison: this.digitalTwin.getLastComparison()
+        digitalTwinComparison: this.digitalTwin.getLastComparison(),
+        cameraFeeds: fullState.cameraFeeds,
+        agents: fullState.agents,
+        agentLogs: fullState.agentLogs,
+        simConfig: fullState.simConfig,
+        timelineStage: fullState.timelineStage,
+        strategy: fullState.strategy,
+        comparison: fullState.comparison,
+        history: fullState.history
       });
     }
   }
@@ -244,7 +257,7 @@ export class TrafficStore extends EventEmitter {
           engine.addCitizenReport(command.report);
           break;
         case "UPDATE_CONFIG":
-          engine.updateConfig(command.config);
+          engine.updateConfig(command.config || {});
           break;
         case "SET_STRATEGY":
           engine.setStrategy(command.strategy);

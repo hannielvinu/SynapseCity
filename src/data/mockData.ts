@@ -25,8 +25,8 @@ export const INITIAL_CITY_METRICS: CityMetrics = {
 export const INITIAL_INTERSECTIONS: IntersectionNode[] = [
   {
     id: 'node-1',
-    name: 'Katpadi Junction',
-    district: 'Katpadi',
+    name: 'Gandhipuram Signal',
+    district: 'Commercial Core',
     x: 48,
     y: 35,
     signalState: 'green',
@@ -45,8 +45,8 @@ export const INITIAL_INTERSECTIONS: IntersectionNode[] = [
   },
   {
     id: 'node-2',
-    name: 'Sathuvachari Circle',
-    district: 'Sathuvachari',
+    name: 'Lakshmi Mills Junction',
+    district: 'Avinashi Road',
     x: 25,
     y: 28,
     signalState: 'green',
@@ -65,8 +65,8 @@ export const INITIAL_INTERSECTIONS: IntersectionNode[] = [
   },
   {
     id: 'node-3',
-    name: 'VIT Main Gate Junction',
-    district: 'Academic Zone',
+    name: 'Hopes College Junction',
+    district: 'Educational Hub',
     x: 75,
     y: 25,
     signalState: 'yellow',
@@ -75,7 +75,7 @@ export const INITIAL_INTERSECTIONS: IntersectionNode[] = [
     vehicleCount: 110,
     avgSpeedKmh: 35,
     densityScore: 68,
-    currentPhase: 'Campus Priority Clearance',
+    currentPhase: 'Transit Priority Clearance',
     phaseTimeRemaining: 4,
     aiConfidence: 74.1,
     connectedNodes: ['node-1', 'node-6'],
@@ -85,8 +85,8 @@ export const INITIAL_INTERSECTIONS: IntersectionNode[] = [
   },
   {
     id: 'node-4',
-    name: 'CMC Hospital Gate',
-    district: 'Medical Sector',
+    name: 'Uppilipalayam Signal',
+    district: 'Transport Hub',
     x: 32,
     y: 62,
     signalState: 'green',
@@ -105,8 +105,8 @@ export const INITIAL_INTERSECTIONS: IntersectionNode[] = [
   },
   {
     id: 'node-5',
-    name: 'Long Bazaar / Scudder Road',
-    district: 'Market Area',
+    name: 'Singanallur Junction',
+    district: 'Trichy Road',
     x: 55,
     y: 58,
     signalState: 'emergency_override',
@@ -126,8 +126,8 @@ export const INITIAL_INTERSECTIONS: IntersectionNode[] = [
   },
   {
     id: 'node-6',
-    name: 'Officers Line Junction',
-    district: 'Government Offices',
+    name: 'Ukkadam Junction',
+    district: 'Market / Transit Area',
     x: 82,
     y: 55,
     signalState: 'green',
@@ -146,8 +146,8 @@ export const INITIAL_INTERSECTIONS: IntersectionNode[] = [
   },
   {
     id: 'node-7',
-    name: 'Thorapadi Junction',
-    district: 'Residential',
+    name: 'Airport Junction',
+    district: 'SITRA',
     x: 18,
     y: 82,
     signalState: 'red',
@@ -167,8 +167,8 @@ export const INITIAL_INTERSECTIONS: IntersectionNode[] = [
   },
   {
     id: 'node-8',
-    name: 'Gandhi Road / Balujas Junction',
-    district: 'Shopping District',
+    name: 'Cinthamani Signal',
+    district: 'North Coimbatore',
     x: 65,
     y: 85,
     signalState: 'green',
@@ -191,8 +191,8 @@ export const INITIAL_CAMERA_FEEDS: CameraFeed[] = [
   {
     id: 'cam-1',
     intersectionId: 'node-1',
-    title: 'CAM-101: Katpadi High-Res',
-    district: 'Katpadi',
+    title: 'CAM-101: Gandhipuram Signal',
+    district: 'Commercial Core',
     status: 'active',
     streamUrlPlaceholder: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=800&q=80',
     detections: { cars: 12, trucks: 2, buses: 3, bicycles: 7, pedestrians: 18, motorcycles: 35, scooters: 15, auto_rickshaws: 8 },
@@ -203,8 +203,8 @@ export const INITIAL_CAMERA_FEEDS: CameraFeed[] = [
   {
     id: 'cam-2',
     intersectionId: 'node-3',
-    title: 'CAM-304: VIT Main Gate Vision',
-    district: 'Academic Zone',
+    title: 'CAM-304: Hopes College',
+    district: 'Educational Hub',
     status: 'active',
     streamUrlPlaceholder: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=800&q=80',
     detections: { cars: 5, trucks: 0, buses: 6, bicycles: 12, pedestrians: 45, motorcycles: 82, scooters: 34, auto_rickshaws: 12 },
@@ -215,8 +215,8 @@ export const INITIAL_CAMERA_FEEDS: CameraFeed[] = [
   {
     id: 'cam-3',
     intersectionId: 'node-5',
-    title: 'CAM-502: Long Bazaar Access',
-    district: 'Market Area',
+    title: 'CAM-502: Singanallur Terminus',
+    district: 'Trichy Road',
     status: 'active',
     streamUrlPlaceholder: 'https://images.unsplash.com/photo-1517649763962-0c623266010b?auto=format&fit=crop&w=800&q=80',
     detections: { cars: 14, trucks: 1, buses: 1, bicycles: 2, pedestrians: 35, motorcycles: 40, scooters: 22, auto_rickshaws: 28 },
@@ -228,8 +228,8 @@ export const INITIAL_CAMERA_FEEDS: CameraFeed[] = [
   {
     id: 'cam-4',
     intersectionId: 'node-7',
-    title: 'CAM-701: Thorapadi Approach',
-    district: 'Residential',
+    title: 'CAM-701: Airport Approach',
+    district: 'SITRA',
     status: 'warning',
     streamUrlPlaceholder: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80',
     detections: { cars: 22, trucks: 4, buses: 4, bicycles: 1, pedestrians: 0, motorcycles: 55, scooters: 31, auto_rickshaws: 9 },
@@ -245,8 +245,8 @@ export const INITIAL_EMERGENCY_UNITS: EmergencyUnit[] = [
     id: 'em-1',
     callsign: 'Ambulance A17',
     type: 'ambulance',
-    origin: 'Sathuvachari Station',
-    destination: 'CMC Hospital',
+    origin: 'Coimbatore Medical College Hospital',
+    destination: 'PSG Hospitals',
     currentProgress: 65,
     pathNodeIds: ['node-2', 'node-1', 'node-5'],
     status: 'en_route',
@@ -256,10 +256,10 @@ export const INITIAL_EMERGENCY_UNITS: EmergencyUnit[] = [
   },
   {
     id: 'em-2',
-    callsign: 'Vellore Fire Rescue-1',
+    callsign: 'Coimbatore Fire Rescue-1',
     type: 'fire_engine',
-    origin: 'Vellore Fort Fire Station',
-    destination: 'VIT Campus',
+    origin: 'Fire Station South',
+    destination: 'Gandhipuram Terminal',
     currentProgress: 20,
     pathNodeIds: ['node-4', 'node-1', 'node-3'],
     status: 'dispatching',
@@ -273,7 +273,7 @@ export const INITIAL_TRANSIT_ROUTES: TransitRoute[] = [
   {
     id: 'tr-101',
     code: 'AV-101',
-    name: 'Autonomous Downtown Loop',
+    name: 'Avinashi Road Express Corridor',
     type: 'autonomous_shuttle',
     scheduleAdherenceMinutes: 0.5,
     activeVehicles: 16,
@@ -285,7 +285,7 @@ export const INITIAL_TRANSIT_ROUTES: TransitRoute[] = [
   {
     id: 'tr-202',
     code: 'BRT-1',
-    name: 'Bayfront Bus Rapid Transit',
+    name: 'Trichy Road BRT',
     type: 'brt_bus',
     scheduleAdherenceMinutes: -1.2,
     activeVehicles: 24,
@@ -296,8 +296,8 @@ export const INITIAL_TRANSIT_ROUTES: TransitRoute[] = [
   },
   {
     id: 'tr-303',
-    code: 'LRT-Blue',
-    name: 'Cross-City Light Rail Express',
+    code: 'MRTS-Blue',
+    name: 'Mettupalayam Corridor Rail',
     type: 'light_rail',
     scheduleAdherenceMinutes: 0.0,
     activeVehicles: 12,
@@ -312,7 +312,7 @@ export const INITIAL_INCIDENTS: IncidentItem[] = [
   {
     id: 'inc-101',
     title: 'Stalled Bus blocking Northbound Lane',
-    location: 'Katpadi Junction',
+    location: 'Gandhipuram Signal',
     intersectionId: 'node-1',
     severity: 'high',
     category: 'vehicle_breakdown',
@@ -325,7 +325,7 @@ export const INITIAL_INCIDENTS: IncidentItem[] = [
   {
     id: 'inc-102',
     title: 'Pedestrian Crowding Surge near Gate',
-    location: 'CMC Hospital Gate',
+    location: 'Uppilipalayam Signal',
     intersectionId: 'node-4',
     severity: 'medium',
     category: 'pedestrian_hazard',
@@ -338,7 +338,7 @@ export const INITIAL_INCIDENTS: IncidentItem[] = [
   {
     id: 'inc-103',
     title: 'Minor Auto-Rickshaw Collision in Lane 2',
-    location: 'Officers Line Junction',
+    location: 'Ukkadam Junction',
     intersectionId: 'node-6',
     severity: 'medium',
     category: 'accident',
@@ -397,7 +397,7 @@ export const INITIAL_AGENTS: AIAgentNode[] = [
   },
   {
     id: 'agent-node1',
-    name: 'Node-1 Sub-Agent (Katpadi)',
+    name: 'Node-1 Sub-Agent (Gandhipuram)',
     type: 'intersection',
     status: 'active',
     assignedNodeId: 'node-1',
@@ -426,7 +426,7 @@ export const INITIAL_AGENT_LOGS: AIAgentLog[] = [
     agentName: 'Prototype Heuristic Forecaster',
     timestamp: '14:28:05',
     topic: '30-Min Forecast',
-    message: 'Predicted +18% queue buildup on Thorapadi Junction (Node-7) in 25 mins. Pre-allocating +12s green wave on approach.',
+    message: 'Predicted +18% queue buildup on Airport Junction (Node-7) in 25 mins. Pre-allocating +12s green wave on approach.',
     confidence: 0.95,
     type: 'warning'
   },
@@ -436,7 +436,7 @@ export const INITIAL_AGENT_LOGS: AIAgentLog[] = [
     agentName: 'Corridor Sentinel',
     timestamp: '14:27:50',
     topic: 'Corridor Lock',
-    message: 'Ambulance Emergency A17 speed verified at 77kmh. Holding Long Bazaar green phase for 18 additional seconds.',
+    message: 'Ambulance Emergency A17 speed verified at 77kmh. Holding Singanallur Terminus green phase for 18 additional seconds.',
     confidence: 1.0,
     type: 'action'
   },
@@ -446,7 +446,7 @@ export const INITIAL_AGENT_LOGS: AIAgentLog[] = [
     agentName: 'Node-1 Sub-Agent',
     timestamp: '14:27:33',
     topic: 'Peer Negotiation',
-    message: 'Negotiated +6s eastbound clearance with Node-3 to alleviate Tech Corridor spillback.',
+    message: 'Negotiated +6s eastbound clearance with Node-3 to alleviate Avinashi Road spillback.',
     confidence: 0.97,
     type: 'negotiation'
   }
@@ -455,8 +455,8 @@ export const INITIAL_AGENT_LOGS: AIAgentLog[] = [
 export const INITIAL_CONGESTION_ZONES: CongestionRiskZone[] = [
   {
     id: 'zone-1',
-    name: 'Thorapadi Bottleneck',
-    district: 'Residential Gateway',
+    name: 'Airport Road Bottleneck',
+    district: 'SITRA Gateway',
     currentDensity: 82,
     predicted15m: 88,
     predicted30m: 94,
@@ -469,8 +469,8 @@ export const INITIAL_CONGESTION_ZONES: CongestionRiskZone[] = [
   },
   {
     id: 'zone-2',
-    name: 'VIT Campus Arterial',
-    district: 'Academic Zone',
+    name: 'Hopes College Arterial',
+    district: 'Avinashi Road',
     currentDensity: 68,
     predicted15m: 74,
     predicted30m: 81,
@@ -483,8 +483,8 @@ export const INITIAL_CONGESTION_ZONES: CongestionRiskZone[] = [
   },
   {
     id: 'zone-3',
-    name: 'CMC Pedestrian Crossing',
-    district: 'Medical Sector',
+    name: 'Government Hospital Pedestrian Crossing',
+    district: 'Trichy Road Sector',
     currentDensity: 54,
     predicted15m: 62,
     predicted30m: 70,
@@ -502,7 +502,7 @@ export const INITIAL_CITIZEN_REPORTS: CitizenReport[] = [
     id: 'cit-101',
     reportNumber: 'REP-9041',
     category: 'traffic_light_broken',
-    locationName: 'Sathuvachari Circle Crossing',
+    locationName: 'Lakshmi Mills Crossing',
     description: 'Pedestrian push button signal flashing erratically on North crosswalk.',
     submittedAt: '18 mins ago',
     status: 'ai_verified',
@@ -514,7 +514,7 @@ export const INITIAL_CITIZEN_REPORTS: CitizenReport[] = [
     id: 'cit-102',
     reportNumber: 'REP-9038',
     category: 'hazard',
-    locationName: 'Katpadi Main Road Lane 1',
+    locationName: 'Avinashi Main Road Lane 1',
     description: 'Debris/cardboard box on right shoulder near entrance.',
     submittedAt: '42 mins ago',
     status: 'dispatched',
@@ -526,7 +526,7 @@ export const INITIAL_CITIZEN_REPORTS: CitizenReport[] = [
     id: 'cit-103',
     reportNumber: 'REP-9012',
     category: 'pothole',
-    locationName: 'VIT Ring Road',
+    locationName: 'Mettupalayam Ring Road',
     description: 'Deep asphalt dip causing vehicles to brake abruptly.',
     submittedAt: '2 hours ago',
     status: 'resolved',
@@ -540,14 +540,14 @@ export const PRESET_SCENARIOS = [
   {
     id: 'rain-storm',
     name: 'Heavy Monsoon Storm (+40% Congestion Risk)',
-    description: 'Simulate severe rainfall across the Bayfront & Bridge gateways. Reduces road friction and speeds up AI signal buffers.',
+    description: 'Simulate severe rainfall across the Avinashi & Trichy Road gateways. Reduces road friction and speeds up AI signal buffers.',
     weather: 'heavy_rain',
     trafficSurge: 35
   },
   {
     id: 'stadium-event',
-    name: 'Stadium Major Event Exit (25,000 Fan Exodus)',
-    description: 'Simulates a sudden surge in pedestrian crossings and AV ride-share requests near Metro Central.',
+    name: 'Nehru Stadium Major Event Exit',
+    description: 'Simulates a sudden surge in pedestrian crossings and auto-rickshaw ride requests near the stadium.',
     weather: 'clear',
     trafficSurge: 65
   },
@@ -560,8 +560,8 @@ export const PRESET_SCENARIOS = [
   },
   {
     id: 'night-freight',
-    name: 'Autonomous Freight Night Platooning',
-    description: 'Optimizes South Port & Tech Corridor for uninterrupted heavy AV cargo convoys with low emission idle time.',
+    name: 'Freight Night Platooning',
+    description: 'Optimizes Ukkadam & L&T Bypass for uninterrupted heavy truck convoys with low emission idle time.',
     weather: 'clear',
     trafficSurge: -20
   }

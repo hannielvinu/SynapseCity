@@ -38,17 +38,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const currentPath = location.pathname;
 
   const navItems: { route: AppRoute; path: string; label: string; icon: React.ElementType; badge?: number; color?: string }[] = [
-    { route: 'dashboard', path: '/dashboard', label: 'Command Center', icon: LayoutDashboard },
+    { route: 'dashboard', path: '/dashboard', label: 'Operations Overview', icon: LayoutDashboard },
     { route: 'traffic', path: '/traffic', label: 'Live Traffic', icon: Activity },
-    { route: 'intersections', path: '/intersections', label: 'Intersections', icon: GitCommit },
-    { route: 'incidents', path: '/incidents', label: 'Incident Desk', icon: AlertTriangle, badge: activeIncidentsCount, color: 'text-amber-400 bg-amber-500/20' },
-    { route: 'emergency', path: '/emergency', label: 'Emergency Corridors', icon: Siren, badge: activeEmergencyCount, color: 'text-rose-400 bg-rose-500/20' },
-    { route: 'predictions', path: '/predictions', label: 'Predictive Flow', icon: TrendingUp },
-    { route: 'agents', path: '/agents', label: 'AI Agent Network', icon: Bot, color: 'text-cyan-400 bg-cyan-500/20' },
-    { route: 'digital-twin', path: '/digital-twin', label: 'Digital Twin Sandbox', icon: Cpu },
-    { route: 'analytics', path: '/analytics', label: 'Mobility Analytics', icon: BarChart3 },
-    { route: 'citizen-reports', path: '/citizen-reports', label: 'Citizen Reports', icon: Users },
-    { route: 'architecture', path: '/architecture', label: 'System Architecture', icon: Layers }
+    { route: 'intersections', path: '/intersections', label: 'Traffic Signals', icon: GitCommit },
+    { route: 'emergency', path: '/emergency', label: 'Emergency Response', icon: Siren, badge: activeEmergencyCount, color: 'text-rose-400 bg-rose-500/20' },
+    { route: 'incidents', path: '/incidents', label: 'Incidents / Citizen Reports', icon: AlertTriangle, badge: activeIncidentsCount, color: 'text-amber-400 bg-amber-500/20' },
+    { route: 'agents', path: '/agents', label: 'AI Traffic Agents', icon: Bot, color: 'text-cyan-400 bg-cyan-500/20' },
+    { route: 'predictions', path: '/predictions', label: 'Predictions', icon: TrendingUp },
+    { route: 'digital-twin', path: '/digital-twin', label: 'Digital Twin', icon: Cpu },
+    { route: 'analytics', path: '/analytics', label: 'Analytics', icon: BarChart3 },
+    { route: 'architecture', path: '/architecture', label: 'Architecture', icon: Layers }
   ];
 
   const handleNavClick = (path: string) => {

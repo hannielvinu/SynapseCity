@@ -30,14 +30,12 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ metrics, history =
   return (
     <div className="space-y-6 font-sans">
       <PageHeader
-        title="Mobility Analytics & ESG Carbon Portal"
+        title="Mobility Analytics Portal"
         subtitle="Historical travel time savings and simulated signal optimization benchmarks across municipal districts."
-        badgeText="ESG AUDITED"
-        badgeType="emerald"
       />
 
       {/* Metric Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 space-y-2">
           <div className="flex items-center justify-between text-slate-400 text-xs">
             <span>Estimated Emissions Impact</span>
@@ -51,7 +49,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ metrics, history =
 
         <div className="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 space-y-2">
           <div className="flex items-center justify-between text-slate-400 text-xs">
-            <span>Avg Delay Savings</span>
+            <span>Avg Delay Savings (Simulated)</span>
             <Clock className="w-4 h-4 text-cyan-400" />
           </div>
           <div className="text-2xl font-black font-mono text-cyan-300">
@@ -68,16 +66,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ metrics, history =
             <ShieldCheck className="w-4 h-4 text-blue-400" />
           </div>
           <div className="text-2xl font-black font-mono text-blue-300">{metrics.signalOptimizationEfficiency}%</div>
-          <div className="text-[11px] text-blue-400 font-semibold">142 edge nodes sync</div>
-        </div>
-
-        <div className="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 space-y-2">
-          <div className="flex items-center justify-between text-slate-400 text-xs">
-            <span>Pedestrian Safety Index</span>
-            <Award className="w-4 h-4 text-purple-400" />
-          </div>
-          <div className="text-2xl font-black font-mono text-purple-300">{metrics.pedestrianSafetyScore}%</div>
-          <div className="text-[11px] text-purple-400 font-semibold">Zero fatalities logged</div>
+          <div className="text-[11px] text-blue-400 font-semibold">Simulated edge nodes sync</div>
         </div>
       </div>
 
