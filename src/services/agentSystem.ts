@@ -8,7 +8,8 @@ export type AgentEventType =
   | 'emergency.route.created'
   | 'corridor.activated'
   | 'incident.detected'
-  | 'incident.updated';
+  | 'incident.updated'
+  | 'emergency.route.recalculated';
 
 export interface AgentEvent {
   id: string;
@@ -25,8 +26,7 @@ export interface LiveAgentLog {
   timestamp: string;
   topic: string;
   message: string;
-  confidence: number;
-  type: 'info' | 'action' | 'warning' | 'negotiation';
+    type: 'info' | 'action' | 'warning' | 'negotiation';
 }
 
 export class AgentEventBus {
@@ -98,6 +98,11 @@ export class AgentEventBus {
         confidence = 0.99;
         logType = 'action';
         break;
+      case 'emergency.route.recalculated':
+        message = `Emergency route recalculated for ${event.data.callsign}: ${event.data.reason}. Action: ${event.data.action}.`;
+        confidence = 0.98;
+        logType = 'warning';
+        break;
       case 'corridor.activated':
         message = `Green Wave lock enabled at Node ${event.data.nodeId} for preemption vehicle ${event.data.callsign}.`;
         confidence = 1.0;
@@ -122,8 +127,7 @@ export class AgentEventBus {
       timestamp: event.timestamp,
       topic: event.type,
       message,
-      confidence,
-      type: logType
+            type: logType
     });
 
     // Cap logs at 50
@@ -155,8 +159,7 @@ export interface AgentState {
   roleDescription: string;
   decisionsMadeToday: number;
   latencyMs: number;
-  accuracyRate: number;
-  lastDecisionTime: string;
+    lastDecisionTime: string;
   inputs?: any;
   outputs?: any;
 }
@@ -174,8 +177,7 @@ export abstract class BaseAgent {
       roleDescription: description,
       decisionsMadeToday: 0,
       latencyMs: 8 + Math.floor(Math.random() * 8),
-      accuracyRate: 94.5 + (Math.random() * 4),
-      lastDecisionTime: new Date().toLocaleTimeString()
+            lastDecisionTime: new Date().toLocaleTimeString()
     };
   }
 

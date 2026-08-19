@@ -31,7 +31,8 @@ export class EmergencyCorridorManager {
     callsign: string,
     route: string[],
     etaSeconds: number,
-    reason: string
+    reason: string,
+    routingFactors?: any
   ): EmergencyCorridor {
     const corridor: EmergencyCorridor = {
       id: `corridor-${Date.now()}`,
@@ -50,7 +51,8 @@ export class EmergencyCorridorManager {
         intersectionsCleared: 0,
         totalIntersections: route.length,
         timeSavedSeconds: 0
-      }
+      },
+      routingFactors
     };
 
     this.corridors.set(corridor.id, corridor);

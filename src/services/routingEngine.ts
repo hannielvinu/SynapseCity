@@ -5,6 +5,13 @@ export interface RouteResult {
   etaSeconds: number;
   distanceMeters: number;
   affectedIntersections: string[];
+  scoringFactors: {
+    baseTravelTime: number;
+    congestionPenalty: number;
+    incidentPenalty: number;
+    weatherPenalty: number;
+    railwayPenalty: number;
+  };
 }
 
 export class RoutingEngine {
@@ -16,99 +23,104 @@ export class RoutingEngine {
     this.incidents = incidents;
   }
 
-  // A basic BFS or Dijkstra search on the intersection network
   public calculateRoute(
     originId: string, 
     destinationId: string, 
-    roadConditions: string = 'clear'
+    weatherStatus: string = 'clear'
   ): RouteResult {
-    const queue: string[][] = [[originId]];
-    const visited = new Set<string>();
-    let shortestPath: string[] | null = null;
+    // Collect all possible simple paths (up to a certain depth to prevent infinite loops)
+    const candidates: string[][] = [];
+    const queue: { path: string[], visited: Set<string> }[] = [{ path: [originId], visited: new Set([originId]) }];
 
-    while (queue.length > 0) {
-      const path = queue.shift()!;
-      const node = path[path.length - 1];
+    while (queue.length > 0 && candidates.length < 5) {
+      const current = queue.shift()!;
+      const node = current.path[current.path.length - 1];
 
       if (node === destinationId) {
-        shortestPath = path;
-        break;
+        candidates.push(current.path);
+        continue;
       }
 
-      if (!visited.has(node)) {
-        visited.add(node);
-        const nodeObj = this.nodes.find(n => n.id === node);
-        if (nodeObj) {
-          for (const neighbor of nodeObj.connectedNodes) {
-            // Check if neighbor has incident. If so, we can penalize it, but still allow pathing if no other exists
-            const neighborIncident = this.incidents.find(i => i.intersectionId === neighbor && i.status !== 'resolved');
-            
-            // To simulate detour re-routing: if neighbor has incident, we avoid it unless necessary
-            if (neighborIncident && neighbor !== destinationId) {
-              continue; // detour logic
-            }
-            queue.push([...path, neighbor]);
+      const nodeObj = this.nodes.find(n => n.id === node);
+      if (nodeObj) {
+        for (const neighbor of nodeObj.connectedNodes) {
+          if (!current.visited.has(neighbor)) {
+            const newVisited = new Set(current.visited);
+            newVisited.add(neighbor);
+            queue.push({ path: [...current.path, neighbor], visited: newVisited });
           }
         }
       }
     }
 
-    // Fallback if detour blocked all paths
-    if (!shortestPath) {
-      const fallbackQueue: string[][] = [[originId]];
-      const fallbackVisited = new Set<string>();
-      while (fallbackQueue.length > 0) {
-        const path = fallbackQueue.shift()!;
-        const node = path[path.length - 1];
-        if (node === destinationId) {
-          shortestPath = path;
-          break;
-        }
-        if (!fallbackVisited.has(node)) {
-          fallbackVisited.add(node);
-          const nodeObj = this.nodes.find(n => n.id === node);
-          if (nodeObj) {
-            for (const neighbor of nodeObj.connectedNodes) {
-              fallbackQueue.push([...path, neighbor]);
-            }
+    // Fallback if no path found
+    if (candidates.length === 0) {
+      candidates.push([originId, destinationId]);
+    }
+
+    // Score all candidates
+    const scoredCandidates = candidates.map(path => {
+      let distance = 0;
+      let congestionPenalty = 0;
+      let incidentPenalty = 0;
+      let weatherPenalty = 0;
+      let railwayPenalty = 0;
+
+      for (let i = 0; i < path.length; i++) {
+        const nodeId = path[i];
+        const node = this.nodes.find(n => n.id === nodeId);
+        if (node) {
+          distance += 800; // Assume 800m between nodes
+          congestionPenalty += (node.densityScore * 0.4);
+          
+          const activeIncident = this.incidents.find(inc => inc.intersectionId === nodeId && inc.status !== 'resolved');
+          if (activeIncident) {
+            incidentPenalty += (activeIncident.impactDelayMinutes * 60);
+          }
+
+          // Mock simulated railway crossing penalty on certain nodes (e.g. Hopes)
+          if (node.name.toLowerCase().includes('hopes')) {
+             // 20% chance of train schedule penalty blocking it for 5 mins
+             const trainBlocking = Math.random() > 0.8;
+             if (trainBlocking) {
+                railwayPenalty += 300;
+             }
           }
         }
       }
-    }
 
-    const path = shortestPath || [originId, destinationId];
-    
-    // Calculate distance and ETA based on path nodes congestion
-    let distance = 0;
-    let totalDelay = 0;
-
-    for (let i = 0; i < path.length; i++) {
-      const nodeId = path[i];
-      const node = this.nodes.find(n => n.id === nodeId);
-      if (node) {
-        distance += 800; // Assume 800m between nodes
-        totalDelay += (node.densityScore * 0.4); // Add delay for congestion
-        
-        const activeIncident = this.incidents.find(inc => inc.intersectionId === nodeId && inc.status !== 'resolved');
-        if (activeIncident) {
-          totalDelay += (activeIncident.impactDelayMinutes * 60); // Incident delay
-        }
+      if (weatherStatus !== 'clear') {
+        weatherPenalty += (path.length * 10); // 10s per segment for bad weather
       }
-    }
 
-    // Weather impact
-    if (roadConditions !== 'clear') {
-      totalDelay += 30; // Rain/fog delay
-    }
+      const baseSpeedMps = 15; // ~54kmh
+      const baseTravelTime = (distance / baseSpeedMps);
+      const totalEta = baseTravelTime + congestionPenalty + incidentPenalty + weatherPenalty + railwayPenalty;
 
-    const baseSpeedMps = 15; // ~54kmh
-    const travelTime = (distance / baseSpeedMps) + totalDelay;
+      return {
+        path,
+        totalEta,
+        scoringFactors: {
+          baseTravelTime,
+          congestionPenalty,
+          incidentPenalty,
+          weatherPenalty,
+          railwayPenalty
+        },
+        distance
+      };
+    });
+
+    // Pick best route (lowest ETA)
+    scoredCandidates.sort((a, b) => a.totalEta - b.totalEta);
+    const bestRoute = scoredCandidates[0];
 
     return {
-      pathNodeIds: path,
-      etaSeconds: Math.floor(travelTime),
-      distanceMeters: distance,
-      affectedIntersections: path
+      pathNodeIds: bestRoute.path,
+      etaSeconds: Math.floor(bestRoute.totalEta),
+      distanceMeters: bestRoute.distance,
+      affectedIntersections: bestRoute.path,
+      scoringFactors: bestRoute.scoringFactors
     };
   }
 }

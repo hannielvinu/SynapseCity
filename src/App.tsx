@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { 
   IntersectionNode, 
@@ -6,7 +6,7 @@ import {
   CameraFeed, 
   EmergencyUnit, 
   CityMetrics, 
-  SimulationConfig,
+  SimulationConfig, 
   IncidentItem,
   NavigationTab
 } from './types';
@@ -21,10 +21,12 @@ import {
 import { Sidebar } from './components/layout/Sidebar';
 import { TopHeader } from './components/layout/TopHeader';
 import { Footer } from './components/layout/Footer';
+import { RoleSwitcherModal, UserRole } from './components/RoleSwitcherModal';
 
 import { LandingPage } from './pages/LandingPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { LiveTrafficPage } from './pages/LiveTrafficPage';
+import { TrafficSignalsPage } from './pages/TrafficSignalsPage';
 import { IntersectionIntelligencePage } from './pages/IntersectionIntelligencePage';
 import { EmergencyCommandPage } from './pages/EmergencyCommandPage';
 import { PredictionsPage } from './pages/PredictionsPage';
@@ -34,12 +36,27 @@ import { IncidentsPage } from './pages/IncidentsPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
 import { CitizenReportsPage } from './pages/CitizenReportsPage';
 import { ArchitecturePage } from './pages/ArchitecturePage';
+import { CitizenPortalPage } from './pages/CitizenPortalPage';
+import { AmbulanceDriverPage } from './pages/AmbulanceDriverPage';
+import { FireDriverPage } from './pages/FireDriverPage';
+import { DataSourcesPage } from './pages/DataSourcesPage';
+import { RoleSelectionPage } from './pages/RoleSelectionPage';
 
 import { GeminiAssistantModal } from './components/GeminiAssistantModal';
 import { ScenarioSimulationModal } from './components/ScenarioSimulationModal';
 
-function OperatorLayout({ children, activeIncidentsCount, activeEmergencyCount, onOpenAssistant, onOpenScenario }: {
+function OperatorLayout({ 
+  children, 
+  currentRole,
+  onOpenRoleSwitcher,
+  activeIncidentsCount, 
+  activeEmergencyCount, 
+  onOpenAssistant, 
+  onOpenScenario 
+}: {
   children: React.ReactNode;
+  currentRole: UserRole;
+  onOpenRoleSwitcher: () => void;
   activeIncidentsCount: number;
   activeEmergencyCount: number;
   onOpenAssistant: () => void;
@@ -48,23 +65,27 @@ function OperatorLayout({ children, activeIncidentsCount, activeEmergencyCount, 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-[#070B12] text-slate-100 font-sans selection:bg-cyan-500 selection:text-slate-950 overflow-hidden">
+    <div className="flex h-screen bg-[#f8fafc] text-slate-900 font-sans selection:bg-cyan-500 selection:text-white overflow-hidden">
       <Sidebar 
+        currentRole={currentRole}
+        onOpenRoleSwitcher={onOpenRoleSwitcher}
         activeIncidentsCount={activeIncidentsCount} 
         activeEmergencyCount={activeEmergencyCount} 
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />
 
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden bg-[#f8fafc]">
         <TopHeader 
+          currentRole={currentRole}
+          onOpenRoleSwitcher={onOpenRoleSwitcher}
           onOpenAssistant={onOpenAssistant}
           onOpenScenario={onOpenScenario}
           activeEmergencyCount={activeEmergencyCount}
           onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
         />
 
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar bg-[#070B12] flex flex-col justify-between">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar bg-[#f8fafc] flex flex-col justify-between">
           <div className="max-w-7xl mx-auto w-full pb-8">
             {children}
           </div>
@@ -75,10 +96,13 @@ function OperatorLayout({ children, activeIncidentsCount, activeEmergencyCount, 
   );
 }
 
-import { useRef, useCallback } from 'react';
-
 function OperatorAppContent() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Role perspective state
+  const [currentRole, setCurrentRole] = useState<UserRole>('traffic_operator');
+  const [isRoleSwitcherOpen, setIsRoleSwitcherOpen] = useState(false);
 
   const [nodes, setNodes] = useState<IntersectionNode[]>(INITIAL_INTERSECTIONS);
   const [cameraFeeds, setCameraFeeds] = useState<CameraFeed[]>(INITIAL_CAMERA_FEEDS);
@@ -86,8 +110,6 @@ function OperatorAppContent() {
   const [incidents, setIncidents] = useState<IncidentItem[]>(INITIAL_INCIDENTS);
   const [metrics, setMetrics] = useState<CityMetrics>(INITIAL_CITY_METRICS);
   const [vehicles, setVehicles] = useState<any[]>([]);
-  const [agents, setAgents] = useState<any[]>([]);
-  const [agentLogs, setAgentLogs] = useState<any[]>([]);
 
   // Digital Twin state hooks
   const [simEngineName, setSimEngineName] = useState<string>("Prototype Simulation Engine");
@@ -96,11 +118,13 @@ function OperatorAppContent() {
   const [comparison, setComparison] = useState<any>({ avgDelaySeconds: 15, travelTimeSeconds: 180, queueLength: 4, throughput: 12, emergencyEtaSeconds: 0 });
   const [history, setHistory] = useState<any[]>([]);
 
-  // Phase 3 Intelligence State
+  const [citizenReports, setCitizenReports] = useState<any[]>([]);
+
+  // Intelligence State
   const [intelligenceEvents, setIntelligenceEvents] = useState<any[]>([]);
   const [predictions, setPredictions] = useState<any[]>([]);
 
-  // Phase 4 Emergency Corridor & Digital Twin State
+  // Emergency Corridor & Digital Twin State
   const [corridors, setCorridors] = useState<any[]>([]);
   const [digitalTwinComparison, setDigitalTwinComparison] = useState<any>(null);
   const [capturedSnapshotId, setCapturedSnapshotId] = useState<string | null>(null);
@@ -131,7 +155,7 @@ function OperatorAppContent() {
 
     const connect = () => {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const host = `${window.location.hostname}:3000`;
+      const host = window.location.host || `${window.location.hostname}:3000`;
       const wsUrl = `${protocol}//${host}`;
 
       const ws = new WebSocket(wsUrl);
@@ -155,6 +179,8 @@ function OperatorAppContent() {
               district: "Central",
               x: i.x,
               y: i.y,
+              lat: i.lat,
+              lng: i.lng,
               signalState: i.signalState.toLowerCase() === 'all_red' ? 'red' : i.signalState.toLowerCase(),
               signalMode: i.operationalMode.toLowerCase() === 'adaptive' ? 'autonomous_ai' : 'fixed_timer',
               queueLength: i.queueLength,
@@ -175,7 +201,6 @@ function OperatorAppContent() {
               totalActiveVehicles: snapshot.networkMetrics.vehicleCount,
               avgSpeedKmh: snapshot.networkMetrics.averageSpeedKmh,
               congestionIndex: snapshot.networkMetrics.density,
-              co2SavedTonsToday: 42,
               activeAiAgents: 8,
               emergencyCorridorsActive: snapshot.networkMetrics.emergencyCount,
               signalOptimizationEfficiency: 94,
@@ -187,14 +212,11 @@ function OperatorAppContent() {
             setVehicles(snapshot.vehicles || []);
             setIncidents(snapshot.incidents || []);
             setEmergencyUnits(snapshot.emergencies || []);
+            setCitizenReports(snapshot.citizenReports || []);
             setIsSimulating(status.running && !status.paused);
             setSimEngineName(status.provider + " Simulation Engine");
             
-            // For now, these legacy fields are gracefully mocked to prevent UI crashes 
-            // since they are not part of the core canonical traffic state yet.
-            setCameraFeeds(message.state.cameraFeeds || []);
-            setAgents(message.state.agents || []);
-            setAgentLogs(message.state.agentLogs || []);
+            setCameraFeeds(message.state.cameraFeeds || INITIAL_CAMERA_FEEDS);
             if (message.state.simConfig) setSimConfig(message.state.simConfig);
             setTimelineStage(message.state.timelineStage || "start");
             setStrategy(message.state.strategy || "ai");
@@ -207,7 +229,6 @@ function OperatorAppContent() {
             });
             setHistory(message.state.history || []);
 
-            // Phase 4: Corridor + Digital Twin state
             if (message.state.corridors) setCorridors(message.state.corridors);
             if (message.state.digitalTwinComparison) {
               setDigitalTwinComparison(message.state.digitalTwinComparison);
@@ -223,7 +244,6 @@ function OperatorAppContent() {
 
             if (ev.type === 'PREDICTION_UPDATED') {
               setPredictions(prev => {
-                // Upsert based on intersection and horizon
                 const idx = prev.findIndex(p => p.affectedIntersectionId === ev.data.affectedIntersectionId && p.horizonMinutes === ev.data.horizonMinutes);
                 if (idx >= 0) {
                   const updated = [...prev];
@@ -234,7 +254,6 @@ function OperatorAppContent() {
               });
             }
 
-            // Phase 4: Digital Twin events
             if (ev.type === 'DIGITAL_TWIN_SNAPSHOT_CAPTURED') {
               setCapturedSnapshotId(ev.data.snapshotId);
               setDigitalTwinStatus('idle');
@@ -244,7 +263,6 @@ function OperatorAppContent() {
               setDigitalTwinStatus('completed');
             }
 
-            // Phase 4: Corridor events
             if (ev.type?.startsWith('EMERGENCY_CORRIDOR_')) {
               if (ev.data?.corridor) {
                 setCorridors(prev => {
@@ -291,6 +309,27 @@ function OperatorAppContent() {
     };
   }, [connectWebSocket]);
 
+  // Handle Role Switch
+  const handleSelectRole = (role: UserRole) => {
+    setCurrentRole(role);
+    switch (role) {
+      case 'citizen':
+        navigate('/citizen-portal');
+        break;
+      case 'ambulance_driver':
+        navigate('/ambulance-driver');
+        break;
+      case 'fire_driver':
+        navigate('/fire-driver');
+        break;
+      case 'admin':
+      case 'traffic_operator':
+      default:
+        navigate('/dashboard');
+        break;
+    }
+  };
+
   // Command handlers sending messages over WebSockets
   const handleUpdateNodeSignalMode = (nodeId: string, mode: SignalMode) => {
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
@@ -325,6 +364,18 @@ function OperatorAppContent() {
   const handleResolveIncident = (incidentId: string) => {
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
       socketRef.current.send(JSON.stringify({ type: 'RESOLVE_INCIDENT', incidentId }));
+    }
+  };
+
+  const handleSubmitCitizenReport = (report: any) => {
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      socketRef.current.send(JSON.stringify({ type: 'SUBMIT_CITIZEN_REPORT', report }));
+    }
+  };
+
+  const handleVerifyCitizenReport = (reportId: string) => {
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      socketRef.current.send(JSON.stringify({ type: 'VERIFY_CITIZEN_REPORT', reportId }));
     }
   };
 
@@ -375,13 +426,10 @@ function OperatorAppContent() {
     }
   };
 
-  // Phase 4: Digital Twin handlers
   const handleCaptureSnapshot = () => {
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
       setDigitalTwinStatus('capturing');
       socketRef.current.send(JSON.stringify({ type: 'CAPTURE_SNAPSHOT' }));
-      // The snapshot ID will come back via intelligence event
-      // For now, use a synthetic ID that the server will match
       const syntheticId = `dtsnapshot-${Date.now()}`;
       setCapturedSnapshotId(syntheticId);
       setTimeout(() => setDigitalTwinStatus('idle'), 1000);
@@ -408,8 +456,8 @@ function OperatorAppContent() {
   const handleNavigateTab = (tab: NavigationTab) => {
     switch (tab) {
       case 'overview': navigate('/dashboard'); break;
-      case 'signals': navigate('/intersections'); break;
-      case 'vision': navigate('/traffic'); break;
+      case 'signals': navigate('/traffic-signals'); break;
+      case 'vision': navigate('/live-traffic'); break;
       case 'emergency': navigate('/emergency'); break;
       case 'transit': navigate('/digital-twin'); break;
       case 'predictive': navigate('/predictions'); break;
@@ -424,25 +472,25 @@ function OperatorAppContent() {
     <>
       {/* Reconnecting Toast banner */}
       {connectionStatus === 'reconnecting' && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-amber-500 text-slate-950 font-extrabold px-5 py-2.5 rounded-full shadow-2xl text-[11px] tracking-wider animate-pulse flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-slate-950 animate-ping"></span>
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[3000] bg-amber-500 text-slate-950 font-extrabold px-5 py-2.5 rounded-full shadow-2xl text-[11px] tracking-wider animate-pulse flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-slate-50 animate-ping"></span>
           RECONNECTING TO CORE ENGINE...
         </div>
       )}
 
       {/* Offline Modal Overlay */}
       {connectionStatus === 'offline' && (
-        <div className="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex flex-col items-center justify-center space-y-4">
-          <div className="w-16 h-16 rounded-2xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-500 text-xl font-bold animate-bounce">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[3000] flex flex-col items-center justify-center space-y-4">
+          <div className="w-16 h-16 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 text-xl font-bold animate-bounce shadow-lg">
             !
           </div>
-          <div className="text-white font-extrabold text-base uppercase tracking-wider">OFFLINE</div>
-          <p className="text-slate-400 text-xs max-w-xs text-center leading-relaxed">
+          <div className="text-slate-900 font-extrabold text-base uppercase tracking-wider">OFFLINE</div>
+          <p className="text-slate-600 text-xs max-w-xs text-center leading-relaxed">
             Lost connection to the SynapseCity AI Autonomous Traffic Command Engine.
           </p>
           <button 
             onClick={connectWebSocket} 
-            className="bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all shadow-lg"
+            className="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all shadow-md hover:shadow-lg cursor-pointer"
           >
             Retry Connection
           </button>
@@ -453,9 +501,78 @@ function OperatorAppContent() {
         {/* Public Showcase Landing Page */}
         <Route path="/" element={<LandingPage />} />
 
-        {/* Operator App Pages */}
+        {/* Dedicated Zero-Password Role Selection Login Page */}
+        <Route path="/role-selection" element={<RoleSelectionPage onSelectRole={handleSelectRole} />} />
+        <Route path="/login" element={<RoleSelectionPage onSelectRole={handleSelectRole} />} />
+
+        {/* Citizen Portal Pages */}
+        <Route path="/citizen-portal" element={
+          <OperatorLayout 
+            currentRole={currentRole}
+            onOpenRoleSwitcher={() => setIsRoleSwitcherOpen(true)}
+            activeIncidentsCount={activeIncidentsCount} 
+            activeEmergencyCount={activeEmergencyCount} 
+            onOpenAssistant={() => setIsAiAssistantOpen(true)} 
+            onOpenScenario={() => setIsScenarioModalOpen(true)}
+          >
+            <CitizenPortalPage
+              nodes={nodes}
+              citizenReports={citizenReports}
+              incidents={incidents}
+              onSubmitReport={handleSubmitCitizenReport}
+            />
+          </OperatorLayout>
+        } />
+
+        {/* Emergency Driver Navigation Cockpits */}
+        <Route path="/ambulance-driver" element={
+          <OperatorLayout 
+            currentRole={currentRole}
+            onOpenRoleSwitcher={() => setIsRoleSwitcherOpen(true)}
+            activeIncidentsCount={activeIncidentsCount} 
+            activeEmergencyCount={activeEmergencyCount} 
+            onOpenAssistant={() => setIsAiAssistantOpen(true)} 
+            onOpenScenario={() => setIsScenarioModalOpen(true)}
+          >
+            <AmbulanceDriverPage
+              nodes={nodes}
+              emergencyUnits={emergencyUnits}
+              incidents={incidents}
+              vehicles={vehicles}
+              onDispatchEmergency={handleDispatchEmergency}
+              onClearEmergency={handleClearEmergency}
+            />
+          </OperatorLayout>
+        } />
+
+        <Route path="/fire-driver" element={
+          <OperatorLayout 
+            currentRole={currentRole}
+            onOpenRoleSwitcher={() => setIsRoleSwitcherOpen(true)}
+            activeIncidentsCount={activeIncidentsCount} 
+            activeEmergencyCount={activeEmergencyCount} 
+            onOpenAssistant={() => setIsAiAssistantOpen(true)} 
+            onOpenScenario={() => setIsScenarioModalOpen(true)}
+          >
+            <FireDriverPage
+              nodes={nodes}
+              emergencyUnits={emergencyUnits}
+              incidents={incidents}
+              vehicles={vehicles}
+            />
+          </OperatorLayout>
+        } />
+
+        {/* Operations Overview & Command Center */}
         <Route path="/dashboard" element={
-          <OperatorLayout activeIncidentsCount={activeIncidentsCount} activeEmergencyCount={activeEmergencyCount} onOpenAssistant={() => setIsAiAssistantOpen(true)} onOpenScenario={() => setIsScenarioModalOpen(true)}>
+          <OperatorLayout 
+            currentRole={currentRole}
+            onOpenRoleSwitcher={() => setIsRoleSwitcherOpen(true)}
+            activeIncidentsCount={activeIncidentsCount} 
+            activeEmergencyCount={activeEmergencyCount} 
+            onOpenAssistant={() => setIsAiAssistantOpen(true)} 
+            onOpenScenario={() => setIsScenarioModalOpen(true)}
+          >
             <DashboardPage
               nodes={nodes}
               selectedNodeId={selectedNodeId}
@@ -473,14 +590,41 @@ function OperatorAppContent() {
           </OperatorLayout>
         } />
 
-        <Route path="/traffic" element={
-          <OperatorLayout activeIncidentsCount={activeIncidentsCount} activeEmergencyCount={activeEmergencyCount} onOpenAssistant={() => setIsAiAssistantOpen(true)} onOpenScenario={() => setIsScenarioModalOpen(true)}>
+        <Route path="/live-traffic" element={
+          <OperatorLayout 
+            currentRole={currentRole}
+            onOpenRoleSwitcher={() => setIsRoleSwitcherOpen(true)}
+            activeIncidentsCount={activeIncidentsCount} 
+            activeEmergencyCount={activeEmergencyCount} 
+            onOpenAssistant={() => setIsAiAssistantOpen(true)} 
+            onOpenScenario={() => setIsScenarioModalOpen(true)}
+          >
             <LiveTrafficPage cameraFeeds={cameraFeeds} vehicles={vehicles} />
           </OperatorLayout>
         } />
 
+        <Route path="/traffic-signals" element={
+          <OperatorLayout 
+            currentRole={currentRole}
+            onOpenRoleSwitcher={() => setIsRoleSwitcherOpen(true)}
+            activeIncidentsCount={activeIncidentsCount} 
+            activeEmergencyCount={activeEmergencyCount} 
+            onOpenAssistant={() => setIsAiAssistantOpen(true)} 
+            onOpenScenario={() => setIsScenarioModalOpen(true)}
+          >
+            <TrafficSignalsPage nodes={nodes} />
+          </OperatorLayout>
+        } />
+
         <Route path="/intersections" element={
-          <OperatorLayout activeIncidentsCount={activeIncidentsCount} activeEmergencyCount={activeEmergencyCount} onOpenAssistant={() => setIsAiAssistantOpen(true)} onOpenScenario={() => setIsScenarioModalOpen(true)}>
+          <OperatorLayout 
+            currentRole={currentRole}
+            onOpenRoleSwitcher={() => setIsRoleSwitcherOpen(true)}
+            activeIncidentsCount={activeIncidentsCount} 
+            activeEmergencyCount={activeEmergencyCount} 
+            onOpenAssistant={() => setIsAiAssistantOpen(true)} 
+            onOpenScenario={() => setIsScenarioModalOpen(true)}
+          >
             <IntersectionIntelligencePage
               nodes={nodes}
               selectedNodeId={selectedNodeId}
@@ -493,7 +637,14 @@ function OperatorAppContent() {
         } />
 
         <Route path="/emergency" element={
-          <OperatorLayout activeIncidentsCount={activeIncidentsCount} activeEmergencyCount={activeEmergencyCount} onOpenAssistant={() => setIsAiAssistantOpen(true)} onOpenScenario={() => setIsScenarioModalOpen(true)}>
+          <OperatorLayout 
+            currentRole={currentRole}
+            onOpenRoleSwitcher={() => setIsRoleSwitcherOpen(true)}
+            activeIncidentsCount={activeIncidentsCount} 
+            activeEmergencyCount={activeEmergencyCount} 
+            onOpenAssistant={() => setIsAiAssistantOpen(true)} 
+            onOpenScenario={() => setIsScenarioModalOpen(true)}
+          >
             <EmergencyCommandPage
               emergencyUnits={emergencyUnits}
               nodes={nodes}
@@ -505,13 +656,27 @@ function OperatorAppContent() {
         } />
 
         <Route path="/predictions" element={
-          <OperatorLayout activeIncidentsCount={activeIncidentsCount} activeEmergencyCount={activeEmergencyCount} onOpenAssistant={() => setIsAiAssistantOpen(true)} onOpenScenario={() => setIsScenarioModalOpen(true)}>
+          <OperatorLayout 
+            currentRole={currentRole}
+            onOpenRoleSwitcher={() => setIsRoleSwitcherOpen(true)}
+            activeIncidentsCount={activeIncidentsCount} 
+            activeEmergencyCount={activeEmergencyCount} 
+            onOpenAssistant={() => setIsAiAssistantOpen(true)} 
+            onOpenScenario={() => setIsScenarioModalOpen(true)}
+          >
             <PredictionsPage metrics={metrics} predictions={predictions} />
           </OperatorLayout>
         } />
 
         <Route path="/digital-twin" element={
-          <OperatorLayout activeIncidentsCount={activeIncidentsCount} activeEmergencyCount={activeEmergencyCount} onOpenAssistant={() => setIsAiAssistantOpen(true)} onOpenScenario={() => setIsScenarioModalOpen(true)}>
+          <OperatorLayout 
+            currentRole={currentRole}
+            onOpenRoleSwitcher={() => setIsRoleSwitcherOpen(true)}
+            activeIncidentsCount={activeIncidentsCount} 
+            activeEmergencyCount={activeEmergencyCount} 
+            onOpenAssistant={() => setIsAiAssistantOpen(true)} 
+            onOpenScenario={() => setIsScenarioModalOpen(true)}
+          >
             <DigitalTwinPage
               simulationConfig={simConfig}
               onUpdateSimulationConfig={handleUpdateConfigValue}
@@ -535,8 +700,15 @@ function OperatorAppContent() {
           </OperatorLayout>
         } />
 
-        <Route path="/agents" element={
-          <OperatorLayout activeIncidentsCount={activeIncidentsCount} activeEmergencyCount={activeEmergencyCount} onOpenAssistant={() => setIsAiAssistantOpen(true)} onOpenScenario={() => setIsScenarioModalOpen(true)}>
+        <Route path="/ai-agents" element={
+          <OperatorLayout 
+            currentRole={currentRole}
+            onOpenRoleSwitcher={() => setIsRoleSwitcherOpen(true)}
+            activeIncidentsCount={activeIncidentsCount} 
+            activeEmergencyCount={activeEmergencyCount} 
+            onOpenAssistant={() => setIsAiAssistantOpen(true)} 
+            onOpenScenario={() => setIsScenarioModalOpen(true)}
+          >
             <AIAgentsPage 
               emergencyUnits={emergencyUnits} 
               incidents={incidents} 
@@ -546,30 +718,83 @@ function OperatorAppContent() {
           </OperatorLayout>
         } />
 
+        <Route path="/citizen-reports" element={
+          <OperatorLayout 
+            currentRole={currentRole}
+            onOpenRoleSwitcher={() => setIsRoleSwitcherOpen(true)}
+            activeIncidentsCount={activeIncidentsCount} 
+            activeEmergencyCount={activeEmergencyCount} 
+            onOpenAssistant={() => setIsAiAssistantOpen(true)} 
+            onOpenScenario={() => setIsScenarioModalOpen(true)}
+          >
+            <CitizenReportsPage 
+               citizenReports={citizenReports} 
+               onSubmitReport={handleSubmitCitizenReport} 
+               onVerifyReport={handleVerifyCitizenReport} 
+            />
+          </OperatorLayout>
+        } />
+
         <Route path="/incidents" element={
-          <OperatorLayout activeIncidentsCount={activeIncidentsCount} activeEmergencyCount={activeEmergencyCount} onOpenAssistant={() => setIsAiAssistantOpen(true)} onOpenScenario={() => setIsScenarioModalOpen(true)}>
+          <OperatorLayout 
+            currentRole={currentRole}
+            onOpenRoleSwitcher={() => setIsRoleSwitcherOpen(true)}
+            activeIncidentsCount={activeIncidentsCount} 
+            activeEmergencyCount={activeEmergencyCount} 
+            onOpenAssistant={() => setIsAiAssistantOpen(true)} 
+            onOpenScenario={() => setIsScenarioModalOpen(true)}
+          >
             <IncidentsPage incidents={incidents} onResolveIncident={handleResolveIncident} />
           </OperatorLayout>
         } />
 
         <Route path="/analytics" element={
-          <OperatorLayout activeIncidentsCount={activeIncidentsCount} activeEmergencyCount={activeEmergencyCount} onOpenAssistant={() => setIsAiAssistantOpen(true)} onOpenScenario={() => setIsScenarioModalOpen(true)}>
+          <OperatorLayout 
+            currentRole={currentRole}
+            onOpenRoleSwitcher={() => setIsRoleSwitcherOpen(true)}
+            activeIncidentsCount={activeIncidentsCount} 
+            activeEmergencyCount={activeEmergencyCount} 
+            onOpenAssistant={() => setIsAiAssistantOpen(true)} 
+            onOpenScenario={() => setIsScenarioModalOpen(true)}
+          >
             <AnalyticsPage metrics={metrics} history={history} />
           </OperatorLayout>
         } />
 
-        <Route path="/citizen-reports" element={
-          <OperatorLayout activeIncidentsCount={activeIncidentsCount} activeEmergencyCount={activeEmergencyCount} onOpenAssistant={() => setIsAiAssistantOpen(true)} onOpenScenario={() => setIsScenarioModalOpen(true)}>
-            <CitizenReportsPage />
-          </OperatorLayout>
-        } />
-
         <Route path="/architecture" element={
-          <OperatorLayout activeIncidentsCount={activeIncidentsCount} activeEmergencyCount={activeEmergencyCount} onOpenAssistant={() => setIsAiAssistantOpen(true)} onOpenScenario={() => setIsScenarioModalOpen(true)}>
+          <OperatorLayout 
+            currentRole={currentRole}
+            onOpenRoleSwitcher={() => setIsRoleSwitcherOpen(true)}
+            activeIncidentsCount={activeIncidentsCount} 
+            activeEmergencyCount={activeEmergencyCount} 
+            onOpenAssistant={() => setIsAiAssistantOpen(true)} 
+            onOpenScenario={() => setIsScenarioModalOpen(true)}
+          >
             <ArchitecturePage />
           </OperatorLayout>
         } />
+
+        <Route path="/sources" element={
+          <OperatorLayout 
+            currentRole={currentRole}
+            onOpenRoleSwitcher={() => setIsRoleSwitcherOpen(true)}
+            activeIncidentsCount={activeIncidentsCount} 
+            activeEmergencyCount={activeEmergencyCount} 
+            onOpenAssistant={() => setIsAiAssistantOpen(true)} 
+            onOpenScenario={() => setIsScenarioModalOpen(true)}
+          >
+            <DataSourcesPage />
+          </OperatorLayout>
+        } />
       </Routes>
+
+      {/* Role Switcher Modal */}
+      <RoleSwitcherModal
+        isOpen={isRoleSwitcherOpen}
+        onClose={() => setIsRoleSwitcherOpen(false)}
+        currentRole={currentRole}
+        onSelectRole={handleSelectRole}
+      />
 
       {/* Gemini AI Co-Pilot Modal */}
       <GeminiAssistantModal

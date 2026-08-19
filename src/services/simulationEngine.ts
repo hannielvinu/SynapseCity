@@ -194,8 +194,7 @@ export class PrototypeSimulationEngine implements SimulationEngine {
       totalActiveVehicles: vehicles.length + (surge * 2),
       avgSpeedKmh: avgGridSpeed,
       congestionIndex: avgCongestion,
-      co2SavedTonsToday: Math.min(45, state.metrics.co2SavedTonsToday + (multiplier * 0.001 * (1.5 - avgCongestion/60)))
-    };
+          };
 
     // Update Camera Feeds metrics
     const cameraFeeds = state.cameraFeeds.map(cam => {

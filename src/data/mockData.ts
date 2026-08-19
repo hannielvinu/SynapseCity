@@ -15,8 +15,7 @@ export const INITIAL_CITY_METRICS: CityMetrics = {
   totalActiveVehicles: 0,
   avgSpeedKmh: 45.2,
   congestionIndex: 22,
-  co2SavedTonsToday: 0,
-  activeAiAgents: 8,
+    activeAiAgents: 8,
   emergencyCorridorsActive: 1,
   signalOptimizationEfficiency: 0,
   pedestrianSafetyScore: 0
@@ -29,6 +28,8 @@ export const INITIAL_INTERSECTIONS: IntersectionNode[] = [
     district: 'Commercial Core',
     x: 48,
     y: 35,
+    lat: 11.0183,
+    lng: 76.9655,
     signalState: 'green',
     signalMode: 'autonomous_ai',
     queueLength: 12,
@@ -37,8 +38,7 @@ export const INITIAL_INTERSECTIONS: IntersectionNode[] = [
     densityScore: 42,
     currentPhase: 'N-S Straight & Left Protected',
     phaseTimeRemaining: 18,
-    aiConfidence: 82.2,
-    connectedNodes: ['node-2', 'node-3', 'node-5'],
+    connectedNodes: ['node-2', 'node-10'],
     northSouthDensity: 55,
     eastWestDensity: 30,
     pedestrianWaiting: 8
@@ -47,8 +47,10 @@ export const INITIAL_INTERSECTIONS: IntersectionNode[] = [
     id: 'node-2',
     name: 'Lakshmi Mills Junction',
     district: 'Avinashi Road',
-    x: 25,
-    y: 28,
+    x: 60,
+    y: 35,
+    lat: 11.0094,
+    lng: 76.9856,
     signalState: 'green',
     signalMode: 'autonomous_ai',
     queueLength: 8,
@@ -57,8 +59,7 @@ export const INITIAL_INTERSECTIONS: IntersectionNode[] = [
     densityScore: 25,
     currentPhase: 'E-W Express Flow',
     phaseTimeRemaining: 32,
-    aiConfidence: 86.5,
-    connectedNodes: ['node-1', 'node-4'],
+    connectedNodes: ['node-1', 'node-9'],
     northSouthDensity: 18,
     eastWestDensity: 32,
     pedestrianWaiting: 3
@@ -68,7 +69,9 @@ export const INITIAL_INTERSECTIONS: IntersectionNode[] = [
     name: 'Hopes College Junction',
     district: 'Educational Hub',
     x: 75,
-    y: 25,
+    y: 35,
+    lat: 11.0264,
+    lng: 77.0163,
     signalState: 'yellow',
     signalMode: 'autonomous_ai',
     queueLength: 22,
@@ -77,8 +80,7 @@ export const INITIAL_INTERSECTIONS: IntersectionNode[] = [
     densityScore: 68,
     currentPhase: 'Transit Priority Clearance',
     phaseTimeRemaining: 4,
-    aiConfidence: 74.1,
-    connectedNodes: ['node-1', 'node-6'],
+    connectedNodes: ['node-9', 'node-7'],
     northSouthDensity: 72,
     eastWestDensity: 64,
     pedestrianWaiting: 14
@@ -89,6 +91,8 @@ export const INITIAL_INTERSECTIONS: IntersectionNode[] = [
     district: 'Transport Hub',
     x: 32,
     y: 62,
+    lat: 11.005,
+    lng: 76.962,
     signalState: 'green',
     signalMode: 'autonomous_ai',
     queueLength: 15,
@@ -97,8 +101,7 @@ export const INITIAL_INTERSECTIONS: IntersectionNode[] = [
     densityScore: 54,
     currentPhase: 'Pedestrian & Transit Synchronization',
     phaseTimeRemaining: 24,
-    aiConfidence: 87.8,
-    connectedNodes: ['node-2', 'node-5', 'node-7'],
+    connectedNodes: ['node-10', 'node-5'],
     northSouthDensity: 48,
     eastWestDensity: 60,
     pedestrianWaiting: 28
@@ -109,6 +112,8 @@ export const INITIAL_INTERSECTIONS: IntersectionNode[] = [
     district: 'Trichy Road',
     x: 55,
     y: 58,
+    lat: 10.9992,
+    lng: 77.021,
     signalState: 'emergency_override',
     signalMode: 'emergency_corridor',
     queueLength: 2,
@@ -117,8 +122,7 @@ export const INITIAL_INTERSECTIONS: IntersectionNode[] = [
     densityScore: 15,
     currentPhase: 'EMERGENCY GREEN WAVE LOCK (Emergency A17)',
     phaseTimeRemaining: 45,
-    aiConfidence: 99.9,
-    connectedNodes: ['node-1', 'node-4', 'node-8'],
+    connectedNodes: ['node-4', 'node-7'],
     northSouthDensity: 10,
     eastWestDensity: 20,
     pedestrianWaiting: 2,
@@ -128,8 +132,10 @@ export const INITIAL_INTERSECTIONS: IntersectionNode[] = [
     id: 'node-6',
     name: 'Ukkadam Junction',
     district: 'Market / Transit Area',
-    x: 82,
-    y: 55,
+    x: 20,
+    y: 75,
+    lat: 10.988,
+    lng: 76.958,
     signalState: 'green',
     signalMode: 'autonomous_ai',
     queueLength: 6,
@@ -138,8 +144,7 @@ export const INITIAL_INTERSECTIONS: IntersectionNode[] = [
     densityScore: 28,
     currentPhase: 'Multi-Modal Phase',
     phaseTimeRemaining: 21,
-    aiConfidence: 85.7,
-    connectedNodes: ['node-3', 'node-8'],
+    connectedNodes: ['node-4'],
     northSouthDensity: 24,
     eastWestDensity: 32,
     pedestrianWaiting: 19
@@ -148,8 +153,10 @@ export const INITIAL_INTERSECTIONS: IntersectionNode[] = [
     id: 'node-7',
     name: 'Airport Junction',
     district: 'SITRA',
-    x: 18,
-    y: 82,
+    x: 90,
+    y: 35,
+    lat: 11.0312,
+    lng: 77.0425,
     signalState: 'red',
     signalMode: 'autonomous_ai',
     queueLength: 34,
@@ -158,8 +165,7 @@ export const INITIAL_INTERSECTIONS: IntersectionNode[] = [
     densityScore: 82,
     currentPhase: 'Congestion Metering Phase',
     phaseTimeRemaining: 8,
-    aiConfidence: 72.4,
-    connectedNodes: ['node-4', 'node-8'],
+    connectedNodes: ['node-3', 'node-5'],
     northSouthDensity: 88,
     eastWestDensity: 76,
     pedestrianWaiting: 0,
@@ -169,8 +175,10 @@ export const INITIAL_INTERSECTIONS: IntersectionNode[] = [
     id: 'node-8',
     name: 'Cinthamani Signal',
     district: 'North Coimbatore',
-    x: 65,
-    y: 85,
+    x: 40,
+    y: 15,
+    lat: 11.0118,
+    lng: 76.951,
     signalState: 'green',
     signalMode: 'autonomous_ai',
     queueLength: 18,
@@ -179,11 +187,52 @@ export const INITIAL_INTERSECTIONS: IntersectionNode[] = [
     densityScore: 38,
     currentPhase: 'Heavy Mixed Flow',
     phaseTimeRemaining: 29,
-    aiConfidence: 86.0,
-    connectedNodes: ['node-5', 'node-6', 'node-7'],
+    connectedNodes: ['node-1'],
     northSouthDensity: 30,
     eastWestDensity: 46,
     pedestrianWaiting: 4
+  },
+  {
+    id: 'node-9',
+    name: 'Nava India',
+    district: 'Avinashi Road',
+    x: 68,
+    y: 35,
+    lat: 11.021,
+    lng: 76.995,
+    signalState: 'green',
+    signalMode: 'autonomous_ai',
+    queueLength: 10,
+    vehicleCount: 50,
+    avgSpeedKmh: 55,
+    densityScore: 20,
+    currentPhase: 'N-S Cross Traffic',
+    phaseTimeRemaining: 12,
+    connectedNodes: ['node-2', 'node-3'],
+    northSouthDensity: 25,
+    eastWestDensity: 22,
+    pedestrianWaiting: 5
+  },
+  {
+    id: 'node-10',
+    name: 'Anna Silai',
+    district: 'Avinashi Road',
+    x: 35,
+    y: 40,
+    lat: 11.0062,
+    lng: 76.9754,
+    signalState: 'green',
+    signalMode: 'autonomous_ai',
+    queueLength: 20,
+    vehicleCount: 75,
+    avgSpeedKmh: 42,
+    densityScore: 40,
+    currentPhase: 'E-W Heavy Flow',
+    phaseTimeRemaining: 35,
+    connectedNodes: ['node-1', 'node-4'],
+    northSouthDensity: 35,
+    eastWestDensity: 45,
+    pedestrianWaiting: 10
   }
 ];
 
@@ -279,8 +328,7 @@ export const INITIAL_TRANSIT_ROUTES: TransitRoute[] = [
     activeVehicles: 16,
     passengerCapacityPercent: 78,
     priorityLaneStatus: 'active',
-    co2ReductionKgToday: 3200,
-    connectedNodes: ['node-1', 'node-3', 'node-6', 'node-5']
+        connectedNodes: ['node-1', 'node-3', 'node-6', 'node-5']
   },
   {
     id: 'tr-202',
@@ -291,8 +339,7 @@ export const INITIAL_TRANSIT_ROUTES: TransitRoute[] = [
     activeVehicles: 24,
     passengerCapacityPercent: 88,
     priorityLaneStatus: 'active',
-    co2ReductionKgToday: 8900,
-    connectedNodes: ['node-2', 'node-4', 'node-7']
+        connectedNodes: ['node-2', 'node-4', 'node-7']
   },
   {
     id: 'tr-303',
@@ -303,52 +350,11 @@ export const INITIAL_TRANSIT_ROUTES: TransitRoute[] = [
     activeVehicles: 12,
     passengerCapacityPercent: 92,
     priorityLaneStatus: 'active',
-    co2ReductionKgToday: 14200,
-    connectedNodes: ['node-4', 'node-5', 'node-8']
+        connectedNodes: ['node-4', 'node-5', 'node-8']
   }
 ];
 
-export const INITIAL_INCIDENTS: IncidentItem[] = [
-  {
-    id: 'inc-101',
-    title: 'Stalled Bus blocking Northbound Lane',
-    location: 'Gandhipuram Signal',
-    intersectionId: 'node-1',
-    severity: 'high',
-    category: 'vehicle_breakdown',
-    reportedAt: '12 mins ago',
-    status: 'responding',
-    aiActionTaken: 'Re-routed 32% incoming traffic to alternate route; extended Southbound signal phase by +14s.',
-    impactDelayMinutes: 4.5,
-    coordinates: { x: 48, y: 35 }
-  },
-  {
-    id: 'inc-102',
-    title: 'Pedestrian Crowding Surge near Gate',
-    location: 'Uppilipalayam Signal',
-    intersectionId: 'node-4',
-    severity: 'medium',
-    category: 'pedestrian_hazard',
-    reportedAt: '5 mins ago',
-    status: 'verifying',
-    aiActionTaken: 'Triggered 30s All-Walk Scramble phase; notified transit routes to slow approach.',
-    impactDelayMinutes: 2.1,
-    coordinates: { x: 32, y: 62 }
-  },
-  {
-    id: 'inc-103',
-    title: 'Minor Auto-Rickshaw Collision in Lane 2',
-    location: 'Ukkadam Junction',
-    intersectionId: 'node-6',
-    severity: 'medium',
-    category: 'accident',
-    reportedAt: '24 mins ago',
-    status: 'resolved',
-    aiActionTaken: 'Tow dispatched; signal timings adjusted dynamically until lane cleared.',
-    impactDelayMinutes: 1.0,
-    coordinates: { x: 82, y: 55 }
-  }
-];
+export const INITIAL_INCIDENTS: IncidentItem[] = [];
 
 export const INITIAL_AGENTS: AIAgentNode[] = [
   {
@@ -359,8 +365,7 @@ export const INITIAL_AGENTS: AIAgentNode[] = [
     roleDescription: 'Global orchestrator managing citywide signal equilibrium and resource dispatch.',
     decisionsMadeToday: 0,
     latencyMs: 12,
-    accuracyRate: 0,
-    lastDecisionTime: 'Just now'
+        lastDecisionTime: 'Just now'
   },
   {
     id: 'agent-pred',
@@ -370,8 +375,7 @@ export const INITIAL_AGENTS: AIAgentNode[] = [
     roleDescription: 'Generates 15-to-60 minute traffic surge maps using statistical heuristics.',
     decisionsMadeToday: 0,
     latencyMs: 34,
-    accuracyRate: 0,
-    lastDecisionTime: '2s ago'
+        lastDecisionTime: '2s ago'
   },
   {
     id: 'agent-emer',
@@ -381,8 +385,7 @@ export const INITIAL_AGENTS: AIAgentNode[] = [
     roleDescription: 'Locks dynamic green waves for emergency response vehicles.',
     decisionsMadeToday: 0,
     latencyMs: 4,
-    accuracyRate: 0,
-    lastDecisionTime: '15s ago'
+        lastDecisionTime: '15s ago'
   },
   {
     id: 'agent-route',
@@ -392,8 +395,7 @@ export const INITIAL_AGENTS: AIAgentNode[] = [
     roleDescription: 'Maintains transit priorities and optimizes vehicle flow.',
     decisionsMadeToday: 0,
     latencyMs: 18,
-    accuracyRate: 0,
-    lastDecisionTime: '5s ago'
+        lastDecisionTime: '5s ago'
   },
   {
     id: 'agent-node1',
@@ -404,8 +406,7 @@ export const INITIAL_AGENTS: AIAgentNode[] = [
     roleDescription: 'Edge agent evaluating local phase splits and cross-bound queue balances.',
     decisionsMadeToday: 0,
     latencyMs: 8,
-    accuracyRate: 0,
-    lastDecisionTime: '1s ago'
+        lastDecisionTime: '1s ago'
   }
 ];
 
@@ -417,8 +418,7 @@ export const INITIAL_AGENT_LOGS: AIAgentLog[] = [
     timestamp: '14:28:12',
     topic: 'Global Equilibrium',
     message: 'Evaluated citywide density matrix. Congestion index down 1.4%. Signal synchronization optimized across 8 nodes.',
-    confidence: 0.99,
-    type: 'action'
+        type: 'action'
   },
   {
     id: 'log-2',
@@ -427,8 +427,7 @@ export const INITIAL_AGENT_LOGS: AIAgentLog[] = [
     timestamp: '14:28:05',
     topic: '30-Min Forecast',
     message: 'Predicted +18% queue buildup on Airport Junction (Node-7) in 25 mins. Pre-allocating +12s green wave on approach.',
-    confidence: 0.95,
-    type: 'warning'
+        type: 'warning'
   },
   {
     id: 'log-3',
@@ -437,8 +436,7 @@ export const INITIAL_AGENT_LOGS: AIAgentLog[] = [
     timestamp: '14:27:50',
     topic: 'Corridor Lock',
     message: 'Ambulance Emergency A17 speed verified at 77kmh. Holding Singanallur Terminus green phase for 18 additional seconds.',
-    confidence: 1.0,
-    type: 'action'
+        type: 'action'
   },
   {
     id: 'log-4',
@@ -447,8 +445,7 @@ export const INITIAL_AGENT_LOGS: AIAgentLog[] = [
     timestamp: '14:27:33',
     topic: 'Peer Negotiation',
     message: 'Negotiated +6s eastbound clearance with Node-3 to alleviate Avinashi Road spillback.',
-    confidence: 0.97,
-    type: 'negotiation'
+        type: 'negotiation'
   }
 ];
 
@@ -497,44 +494,7 @@ export const INITIAL_CONGESTION_ZONES: CongestionRiskZone[] = [
   }
 ];
 
-export const INITIAL_CITIZEN_REPORTS: CitizenReport[] = [
-  {
-    id: 'cit-101',
-    reportNumber: 'REP-9041',
-    category: 'traffic_light_broken',
-    locationName: 'Lakshmi Mills Crossing',
-    description: 'Pedestrian push button signal flashing erratically on North crosswalk.',
-    submittedAt: '18 mins ago',
-    status: 'ai_verified',
-    upvotes: 14,
-    citizenName: 'Priya K.',
-    aiVerificationConfidence: 88.4
-  },
-  {
-    id: 'cit-102',
-    reportNumber: 'REP-9038',
-    category: 'hazard',
-    locationName: 'Avinashi Main Road Lane 1',
-    description: 'Debris/cardboard box on right shoulder near entrance.',
-    submittedAt: '42 mins ago',
-    status: 'dispatched',
-    upvotes: 28,
-    citizenName: 'Ramesh V.',
-    aiVerificationConfidence: 94.2
-  },
-  {
-    id: 'cit-103',
-    reportNumber: 'REP-9012',
-    category: 'pothole',
-    locationName: 'Mettupalayam Ring Road',
-    description: 'Deep asphalt dip causing vehicles to brake abruptly.',
-    submittedAt: '2 hours ago',
-    status: 'resolved',
-    upvotes: 42,
-    citizenName: 'Dr. Aris T.',
-    aiVerificationConfidence: 99.1
-  }
-];
+export const INITIAL_CITIZEN_REPORTS: CitizenReport[] = [];
 
 export const PRESET_SCENARIOS = [
   {

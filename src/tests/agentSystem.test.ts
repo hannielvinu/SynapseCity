@@ -91,19 +91,28 @@ function runAgentSystemTests() {
   // Step 5: Submit citizen report and assess incident conversion
   console.log("\nStep 5: Submitting Citizen Report...");
   engine.addCitizenReport({
-    category: 'accident',
-    locationName: 'Bayfront Pkwy',
-    description: 'Minor collision blocking right approach lane.',
-    citizenName: 'Citizen-A1'
+    category: 'Accident',
+    locationName: 'Trichy Road',
+    description: 'Minor collision blocking right lane',
+    photoEvidence: false,
+    severity: 'medium',
+    reporterContact: 'Anonymous'
   });
 
   const state5 = engine.getFullState();
   const citizenReport = state5.citizenReports[0];
-  const newIncident = state5.incidents[0];
   console.log(`Report created: ${citizenReport.reportNumber} (${citizenReport.description})`);
+  assert.strictEqual(citizenReport.status, 'SUBMITTED', "Citizen report status should be SUBMITTED initially");
+
+  engine.verifyCitizenReport(citizenReport.id);
+  
+  const state6 = engine.getFullState();
+  const verifiedReport = state6.citizenReports[0];
+  const newIncident = state6.incidents[0];
+  
   console.log(`Spawned Incident: ${newIncident.title} @ ${newIncident.location}`);
   
-  assert.strictEqual(citizenReport.status, 'ai_verified', "Citizen report status should be verified");
+  assert.strictEqual(verifiedReport.status, 'VERIFIED', "Citizen report status should be VERIFIED");
   assert.ok(newIncident.title.includes('Minor collision'), "Report should convert to active incident");
 
   console.log("\n=== ALL E2E AGENT SYSTEM INTEGRATION TESTS PASSED SUCCESSFULLY ===");

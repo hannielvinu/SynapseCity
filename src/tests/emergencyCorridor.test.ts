@@ -44,19 +44,27 @@ function runEmergencyCorridorTests() {
   const manager = new EmergencyCorridorManager(validator);
 
   // Test 1: Create corridor
-  console.log('Test 1: Create corridor');
+  console.log('Test 1: Create corridor to PSG Hospitals');
   const corridor = manager.createCorridor(
     'eu-001',
     'Ambulance A17',
     ['node-1', 'node-2', 'node-3'],
     120,
-    'Emergency dispatch test'
+    'Emergency dispatch test',
+    {
+      baseTravelTime: 120,
+      congestionPenalty: 20,
+      incidentPenalty: 0,
+      weatherPenalty: 0,
+      railwayPenalty: 0
+    }
   );
   assert.ok(corridor.id, 'Corridor should have an ID');
   assert.strictEqual(corridor.status, 'PREPARING', 'Initial status should be PREPARING');
   assert.strictEqual(corridor.route.length, 3, 'Route should have 3 nodes');
   assert.strictEqual(corridor.metrics.totalIntersections, 3, 'Should track 3 intersections');
-  console.log('  ✓ Corridor created with PREPARING status');
+  assert.ok(corridor.routingFactors, 'Should have routing factors');
+  console.log('  ✓ Corridor created with PREPARING status and routing factors');
 
   // Test 2: Activate corridor through SafetyValidator
   console.log('Test 2: Activate corridor through SafetyValidator');
@@ -118,7 +126,7 @@ function runEmergencyCorridorTests() {
   // Test 6: Cancel corridor
   console.log('Test 6: Cancel corridor');
   const corridor2 = manager.createCorridor(
-    'eu-002', 'Fire Engine F3', ['node-1', 'node-2'], 90, 'Fire dispatch'
+    'eu-002', 'Fire Engine F3', ['node-1', 'node-2'], 90, 'Fire dispatch', {}
   );
   manager.cancelCorridor(corridor2.id);
   const cancelledCorridor = manager.getCorridors().find(c => c.id === corridor2.id)!;

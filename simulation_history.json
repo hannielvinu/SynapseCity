@@ -13,8 +13,8 @@
       "throughput": 180,
       "emergencyEtaSeconds": 12
     },
-    "id": "sim-1787148387066",
-    "timestamp": "19/8/2026 7:36:27 pm"
+    "id": "sim-1787167094014",
+    "timestamp": "20/8/2026 12:48:14 am"
   },
   {
     "config": {
@@ -30,7 +30,7 @@
       "throughput": 200,
       "emergencyEtaSeconds": 10
     },
-    "id": "sim-1787148387064",
-    "timestamp": "19/8/2026 7:36:27 pm"
+    "id": "sim-1787167094013",
+    "timestamp": "20/8/2026 12:48:14 am"
   }
 ]

@@ -19,27 +19,27 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   onRefresh
 }) => {
   const badgeStyles = {
-    cyan: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30',
-    emerald: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
-    amber: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
-    rose: 'bg-rose-500/10 text-rose-400 border-rose-500/30'
+    cyan: 'bg-cyan-50 text-cyan-800 border-cyan-200 font-bold',
+    emerald: 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold',
+    amber: 'bg-amber-50 text-amber-800 border-amber-200 font-bold',
+    rose: 'bg-rose-50 text-rose-800 border-rose-200 font-bold'
   };
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-800/80">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-200">
       <div>
-        <div className="flex items-center gap-3">
-          <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white font-sans">
+        <div className="flex items-center gap-3 flex-wrap">
+          <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 font-sans">
             {title}
           </h1>
           {badgeText && (
-            <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${badgeStyles[badgeType]}`}>
+            <span className={`px-2.5 py-0.5 rounded-full text-[11px] uppercase tracking-wider border shadow-2xs ${badgeStyles[badgeType]}`}>
               {badgeText}
             </span>
           )}
         </div>
         {subtitle && (
-          <p className="text-xs text-slate-400 mt-1 font-normal max-w-3xl">
+          <p className="text-xs text-slate-600 mt-1 font-medium max-w-3xl leading-relaxed">
             {subtitle}
           </p>
         )}
@@ -49,7 +49,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
         {onRefresh && (
           <button
             onClick={onRefresh}
-            className="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-slate-200 transition-colors"
+            className="p-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 hover:text-slate-900 shadow-xs transition-colors cursor-pointer"
             title="Refresh View State"
           >
             <RefreshCw className="w-4 h-4" />

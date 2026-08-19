@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { IntersectionNode, SignalMode } from '../types';
-import { Sliders, Cpu, AlertTriangle, CheckCircle2, RotateCcw, Zap, Sparkles, Clock, Users, ArrowUpRight } from 'lucide-react';
+import { Sparkles, Clock, MapPin, Activity, RadioTower, AlertTriangle } from 'lucide-react';
 
 interface SignalControlViewProps {
   nodes: IntersectionNode[];
@@ -13,201 +13,155 @@ interface SignalControlViewProps {
 
 export const SignalControlView: React.FC<SignalControlViewProps> = ({
   nodes,
-  selectedNodeId,
-  onSelectNode,
   onUpdateNodeSignalMode,
-  onUpdatePhaseDuration,
   onTriggerAiRebalance
 }) => {
-  const activeNode = nodes.find(n => n.id === selectedNodeId) || nodes[0];
-  const [phaseDurationInput, setPhaseDurationInput] = useState(activeNode.phaseTimeRemaining);
-
   return (
     <div className="space-y-6 font-sans">
       {/* View Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/90 p-4 rounded-2xl border border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
         <div>
-          <h2 className="text-base font-extrabold text-white flex items-center gap-2">
-            <Sliders className="w-5 h-5 text-cyan-400" />
-            <span>Multi-Agent Traffic Signal Control Hub</span>
+          <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+            <RadioTower className="w-5 h-5 text-cyan-600" />
+            <span>Simulated Signal Control Network</span>
           </h2>
-          <p className="text-xs text-slate-400 mt-0.5">Real-time adaptive phase optimization and manual controller override interface</p>
+          <p className="text-xs text-slate-600 mt-0.5 font-medium">Real-time adaptive phase optimization and emergency preemption</p>
         </div>
 
         <button
-          onClick={() => onTriggerAiRebalance(activeNode.id)}
-          className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-extrabold text-xs shadow-md shadow-cyan-950/40 border border-cyan-400/30 rounded-xl transition-all"
+          onClick={() => onTriggerAiRebalance(nodes[0]?.id || '')}
+          className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-xs shadow-sm shadow-emerald-500/20 border border-emerald-500/30 rounded-xl transition-all cursor-pointer"
         >
-          <Sparkles className="w-4 h-4 text-cyan-200" />
-          <span>Optimize All Node Phase Cycles</span>
+          <Sparkles className="w-4 h-4 text-emerald-200" />
+          <span>Optimize Grid Timing</span>
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: List of All City Intersection Nodes */}
-        <div className="bg-slate-900/90 rounded-2xl border border-slate-800 p-5 space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-            <h3 className="text-xs font-extrabold text-slate-300 uppercase tracking-wider">City Intersection Nodes ({nodes.length})</h3>
-            <span className="text-[10px] text-cyan-400 font-mono font-bold">100% Connected</span>
-          </div>
+      {/* Traffic Signals Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {nodes.map((node) => {
+          const isEmergency = node.signalState === 'emergency_override' || node.signalState === 'emergency_green';
+          const isGreen = node.signalState === 'green' || isEmergency;
+          const isYellow = node.signalState === 'yellow';
+          const isRed = node.signalState === 'red' && !isEmergency;
 
-          <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
-            {nodes.map((node) => {
-              const isSelected = activeNode.id === node.id;
-              return (
-                <div
-                  key={node.id}
-                  onClick={() => {
-                    onSelectNode(node.id);
-                    setPhaseDurationInput(node.phaseTimeRemaining);
-                  }}
-                  className={`p-3.5 rounded-xl border transition-all cursor-pointer ${
-                    isSelected 
-                      ? 'bg-slate-800 border-cyan-500 shadow-md shadow-cyan-950/40' 
-                      : 'bg-slate-950/60 border-slate-800/80 hover:bg-slate-800/50'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <span className={`w-2.5 h-2.5 rounded-full ${
-                        node.signalState === 'green' ? 'bg-emerald-500 shadow-sm shadow-emerald-500' :
-                        node.signalState === 'yellow' ? 'bg-amber-500' : 'bg-rose-500'
-                      }`}></span>
-                      <h4 className="font-bold text-xs text-white">{node.name}</h4>
+          return (
+            <div 
+              key={node.id} 
+              className={`bg-white rounded-2xl border ${
+                isEmergency 
+                  ? 'border-emerald-400 shadow-md ring-2 ring-emerald-500/20' 
+                  : 'border-slate-200 shadow-sm'
+              } p-5 flex flex-col h-full relative overflow-hidden`}
+            >
+              <div className="flex justify-between items-start mb-4">
+                <div className="space-y-1">
+                  <h3 className="font-extrabold text-slate-900 text-sm flex items-center gap-1.5 z-10 relative">
+                    <MapPin className="w-3.5 h-3.5 text-slate-500" />
+                    {node.name}
+                  </h3>
+                  <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold ml-5">{node.district}</p>
+                </div>
+                
+                {/* Traffic Light Housing */}
+                <div className="bg-slate-900 border border-slate-800 p-1.5 rounded-full flex flex-col gap-1.5 shadow-inner w-8 z-10 relative">
+                  <div className={`w-5 h-5 rounded-full transition-all duration-300 ${
+                    isRed 
+                      ? 'bg-rose-500 shadow-[0_0_12px_rgba(244,63,94,0.9)] border border-rose-300' 
+                      : 'bg-rose-950/40 opacity-30'
+                  }`}></div>
+                  
+                  <div className={`w-5 h-5 rounded-full transition-all duration-300 ${
+                    isYellow 
+                      ? 'bg-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.9)] border border-amber-200' 
+                      : 'bg-amber-950/40 opacity-30'
+                  }`}></div>
+                  
+                  <div className={`w-5 h-5 rounded-full transition-all duration-300 ${
+                    isGreen 
+                      ? 'bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.9)] border border-emerald-300' 
+                      : 'bg-emerald-950/40 opacity-30'
+                  }`}></div>
+                </div>
+              </div>
+
+              {/* Status Display */}
+              <div className="flex-grow space-y-3 z-10 relative">
+                {isEmergency ? (
+                  <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex flex-col items-center justify-center">
+                    <div className="text-[10px] font-bold text-emerald-800 uppercase tracking-widest flex items-center gap-1.5 mb-1">
+                      <AlertTriangle className="w-3.5 h-3.5 text-emerald-600" />
+                      EMERGENCY PRIORITY
                     </div>
-                    <span className="text-[10px] px-2 py-0.5 rounded-md bg-slate-800 text-cyan-300 font-mono font-bold border border-slate-700">
-                      {node.densityScore}% Density
-                    </span>
+                    <div className="text-xl font-black font-mono text-emerald-700 tracking-wider">
+                      GREEN WAVE LOCK
+                    </div>
+                    {node.incidentAlert && (
+                      <div className="text-[10px] text-emerald-800 mt-1 text-center font-medium">
+                        {node.incidentAlert}
+                      </div>
+                    )}
                   </div>
+                ) : (
+                  <div className="bg-slate-50 rounded-xl border border-slate-200 p-3">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-[10px] text-slate-500 font-bold uppercase">Current Phase</span>
+                      <span className="text-[11px] font-mono font-bold text-slate-900 flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-cyan-600" />
+                        00:{node.phaseTimeRemaining.toString().padStart(2, '0')}
+                      </span>
+                    </div>
+                    <div className="text-xs font-bold text-slate-800 truncate">
+                      {node.currentPhase}
+                    </div>
+                  </div>
+                )}
 
-                  <div className="flex items-center justify-between text-[11px] text-slate-400 mt-2">
-                    <span>{node.district}</span>
-                    <span className="text-slate-300 font-mono font-medium">{node.vehicleCount} cars queue</span>
+                <div className="flex justify-between items-center text-xs">
+                  <div className="flex items-center gap-1.5">
+                    <Activity className="w-3 h-3 text-cyan-600" />
+                    <span className="text-slate-500 font-medium">Queue:</span>
+                    <span className="font-mono text-cyan-700 font-bold">{node.queueLength} veh</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-slate-500 font-medium">Load:</span>
+                    <span className="font-mono text-slate-800 font-bold">{node.densityScore}%</span>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        </div>
+              </div>
 
-        {/* Middle & Right 2 Columns: Detailed Selected Node Inspector */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-slate-900/90 rounded-2xl border border-slate-800 p-5 space-y-5">
-            {/* Selected Node Header */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-800">
-              <div>
-                <div className="flex items-center space-x-2">
-                  <h3 className="text-lg font-extrabold text-white">{activeNode.name}</h3>
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
-                    {activeNode.district}
-                  </span>
+              {/* Mode Toggle */}
+              <div className="mt-4 pt-3 border-t border-slate-100 z-10 relative">
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Mode</span>
+                  <div className="flex bg-slate-100 rounded-lg p-0.5 border border-slate-200">
+                    <button
+                      onClick={() => onUpdateNodeSignalMode(node.id, 'autonomous_ai')}
+                      className={`px-2 py-1 text-[9px] font-bold rounded-md transition-all cursor-pointer ${
+                        node.signalMode === 'autonomous_ai' 
+                          ? 'bg-white text-cyan-800 shadow-xs border border-slate-200' 
+                          : 'text-slate-500 hover:text-slate-800'
+                      }`}
+                    >
+                      AI
+                    </button>
+                    <button
+                      onClick={() => onUpdateNodeSignalMode(node.id, 'manual_override')}
+                      className={`px-2 py-1 text-[9px] font-bold rounded-md transition-all cursor-pointer ${
+                        node.signalMode === 'manual_override' 
+                          ? 'bg-white text-amber-800 shadow-xs border border-slate-200' 
+                          : 'text-slate-500 hover:text-slate-800'
+                      }`}
+                    >
+                      MANUAL
+                    </button>
+                  </div>
                 </div>
-                <p className="text-xs text-slate-400 mt-1">Current Active Phase: <strong className="text-amber-300 font-mono">{activeNode.currentPhase}</strong></p>
               </div>
 
-              {/* Mode Selector */}
-              <div className="flex items-center space-x-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
-                <button
-                  onClick={() => onUpdateNodeSignalMode(activeNode.id, 'autonomous_ai')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all ${
-                    activeNode.signalMode === 'autonomous_ai'
-                      ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  Autonomous AI
-                </button>
-                <button
-                  onClick={() => onUpdateNodeSignalMode(activeNode.id, 'manual_override')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all ${
-                    activeNode.signalMode === 'manual_override'
-                      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  Manual Override
-                </button>
-              </div>
             </div>
-
-            {/* Density & Directional Metrics Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-              <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
-                <span className="text-slate-400 block mb-1 text-[11px] font-medium">North-South Corridor</span>
-                <div className="flex items-center justify-between">
-                  <span className="text-lg font-bold font-mono text-white">{activeNode.northSouthDensity}%</span>
-                  <span className="text-[10px] px-1.5 py-0.5 bg-slate-800 text-slate-300 rounded font-mono">Vehicles</span>
-                </div>
-                <div className="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
-                  <div className="bg-cyan-500 h-full rounded-full" style={{ width: `${activeNode.northSouthDensity}%` }}></div>
-                </div>
-              </div>
-
-              <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
-                <span className="text-slate-400 block mb-1 text-[11px] font-medium">East-West Corridor</span>
-                <div className="flex items-center justify-between">
-                  <span className="text-lg font-bold font-mono text-white">{activeNode.eastWestDensity}%</span>
-                  <span className="text-[10px] px-1.5 py-0.5 bg-slate-800 text-slate-300 rounded font-mono">Vehicles</span>
-                </div>
-                <div className="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
-                  <div className="bg-indigo-500 h-full rounded-full" style={{ width: `${activeNode.eastWestDensity}%` }}></div>
-                </div>
-              </div>
-
-              <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
-                <span className="text-slate-400 block mb-1 text-[11px] font-medium">Pedestrian Demand</span>
-                <div className="flex items-center justify-between">
-                  <span className="text-lg font-bold font-mono text-emerald-400">{activeNode.pedestrianWaiting}</span>
-                  <span className="text-[10px] text-slate-400">waiting</span>
-                </div>
-              </div>
-
-              <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
-                <span className="text-slate-400 block mb-1 text-[11px] font-medium">AI Agent Confidence</span>
-                <div className="flex items-center justify-between">
-                  <span className="text-lg font-bold font-mono text-emerald-300">{activeNode.aiConfidence}%</span>
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                </div>
-              </div>
-            </div>
-
-            {/* Interactive Phase Duration Controls */}
-            <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-4">
-              <div className="flex items-center justify-between">
-                <h4 className="text-xs font-extrabold text-slate-200 uppercase tracking-wider flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-amber-400" />
-                  <span>Green Phase Duration Tuning</span>
-                </h4>
-                <span className="text-xs font-mono text-amber-300 font-bold">{phaseDurationInput} seconds remaining</span>
-              </div>
-
-              <div className="space-y-2">
-                <input
-                  type="range"
-                  min="10"
-                  max="90"
-                  value={phaseDurationInput}
-                  onChange={(e) => setPhaseDurationInput(Number(e.target.value))}
-                  className="w-full accent-cyan-500 bg-slate-800 h-2 rounded-lg cursor-pointer"
-                />
-                <div className="flex justify-between text-[10px] text-slate-400 font-mono">
-                  <span>10s (Fast Cycle)</span>
-                  <span>45s (Standard)</span>
-                  <span>90s (Heavy Throughput)</span>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end space-x-2 pt-2 border-t border-slate-800/80">
-                <button
-                  onClick={() => onUpdatePhaseDuration(activeNode.id, phaseDurationInput)}
-                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-xl text-xs shadow-md shadow-emerald-950/40 transition-all"
-                >
-                  Apply Phase Duration
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+          );
+        })}
       </div>
     </div>
   );

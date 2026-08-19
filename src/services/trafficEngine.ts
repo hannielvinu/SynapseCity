@@ -98,8 +98,7 @@ export class TrafficEngine {
       totalActiveVehicles: 0,
       avgSpeedKmh: 45,
       congestionIndex: 20,
-      co2SavedTonsToday: 0,
-      activeAiAgents: 8,
+            activeAiAgents: 8,
       emergencyCorridorsActive: 0,
       signalOptimizationEfficiency: 0,
       pedestrianSafetyScore: 0
@@ -239,8 +238,7 @@ export class TrafficEngine {
         return {
           ...n,
           densityScore: Math.max(10, n.densityScore - 25),
-          aiConfidence: Math.min(99.9, n.aiConfidence + 2.0),
-          signalState: 'green'
+                    signalState: 'green'
         };
       }
       return n;
@@ -282,7 +280,8 @@ export class TrafficEngine {
       greenWaveActive: true,
       pathNodeIds: route.pathNodeIds,
       etaSeconds: route.etaSeconds,
-      timeSavedSeconds: 15
+      timeSavedSeconds: 15,
+      routingFactors: route.scoringFactors
     };
     this.emergencyUnits.push(newUnit);
 
@@ -346,11 +345,19 @@ export class TrafficEngine {
       id: `rep-${Date.now()}`,
       reportNumber: `REP-${Math.floor(1000 + Math.random() * 9000)}`,
       submittedAt: new Date().toLocaleTimeString(),
-      status: 'ai_verified',
-      upvotes: 1,
-      aiVerificationConfidence: 94.5
-    };
+      status: 'SUBMITTED',
+      photoEvidence: report.photoEvidence || false,
+      severity: report.severity || 'medium',
+      reporterContact: report.reporterContact || 'Anonymous'
+    } as CitizenReport;
     this.citizenReports.unshift(newReport);
+  }
+
+  public verifyCitizenReport(reportId: string) {
+    const report = this.citizenReports.find(r => r.id === reportId);
+    if (!report) return;
+
+    report.status = 'VERIFIED';
 
     const matchedNode = this.nodes.find(n => n.name.toLowerCase().includes(report.locationName.toLowerCase())) || this.nodes[0];
     
@@ -359,13 +366,15 @@ export class TrafficEngine {
       title: `Reported: ${report.description}`,
       location: report.locationName,
       intersectionId: matchedNode.id,
-      severity: 'medium',
-      category: 'debris',
+      severity: report.severity,
+      category: report.category === 'Accident' ? 'accident' : 'road_obstruction',
       reportedAt: new Date().toLocaleTimeString(),
       status: 'detected',
       aiActionTaken: 'Dynamic detours broadcast to adjacent route agents.',
       impactDelayMinutes: 5,
-      coordinates: { x: matchedNode.x + 1.5, y: matchedNode.y - 1.5 }
+      coordinates: { x: matchedNode.x + 1.5, y: matchedNode.y - 1.5 },
+      source: 'Citizen',
+      isDemo: true
     };
     
     this.incidents.unshift(newIncident);
@@ -374,6 +383,27 @@ export class TrafficEngine {
     this.nodes = this.nodes.map(n => 
       n.id === matchedNode.id ? { ...n, incidentAlert: report.description } : n
     );
+
+    // Re-route active emergencies if they pass through matchedNode
+    this.emergencyUnits = this.emergencyUnits.map(unit => {
+      if (unit.status === 'en_route' && unit.pathNodeIds.includes(matchedNode.id)) {
+          this.bus.publish('emergency.route.recalculated', 'router', { 
+              callsign: unit.callsign, 
+              reason: 'ROUTE UPDATE REQUIRED: Obstruction Verified',
+              action: 'ALTERNATIVE ROUTE FOUND'
+          });
+          const router = new RoutingEngine(this.nodes, this.incidents);
+          const newRoute = router.calculateRoute(unit.origin, unit.destination, this.simConfig.weather);
+          
+          return {
+              ...unit,
+              pathNodeIds: newRoute.pathNodeIds,
+              etaSeconds: newRoute.etaSeconds,
+              routingFactors: newRoute.scoringFactors
+          };
+      }
+      return unit;
+    });
   }
 
   public resetSimulation() {

@@ -112,6 +112,13 @@ export interface EmergencyCorridor {
     totalIntersections: number;
     timeSavedSeconds: number;
   };
+  routingFactors?: {
+    baseTravelTime: number;
+    congestionPenalty: number;
+    incidentPenalty: number;
+    weatherPenalty: number;
+    railwayPenalty: number;
+  };
 }
 
 // ============================================================

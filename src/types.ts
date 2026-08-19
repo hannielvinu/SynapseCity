@@ -28,6 +28,8 @@ export interface IntersectionNode {
   district: string;
   x: number; // 0-100 percentage for map grid
   y: number; // 0-100 percentage for map grid
+  lat?: number;
+  lng?: number;
   signalState: 'green' | 'yellow' | 'red' | 'emergency_override';
   signalMode: SignalMode;
   queueLength: number; // in meters or vehicle count
@@ -36,7 +38,6 @@ export interface IntersectionNode {
   densityScore: number; // 0 - 100
   currentPhase: string;
   phaseTimeRemaining: number; // seconds
-  aiConfidence: number; // percentage
   connectedNodes: string[];
   northSouthDensity: number;
   eastWestDensity: number;
@@ -79,6 +80,13 @@ export interface EmergencyUnit {
   etaSeconds: number;
   timeSavedSeconds: number;
   greenWaveActive: boolean;
+  routingFactors?: {
+    baseTravelTime: number;
+    congestionPenalty: number;
+    incidentPenalty: number;
+    weatherPenalty: number;
+    railwayPenalty: number;
+  };
 }
 
 export interface TransitRoute {
@@ -90,7 +98,6 @@ export interface TransitRoute {
   activeVehicles: number;
   passengerCapacityPercent: number;
   priorityLaneStatus: 'active' | 'shared' | 'blocked';
-  co2ReductionKgToday: number;
   connectedNodes: string[];
 }
 
@@ -98,7 +105,6 @@ export interface CityMetrics {
   totalActiveVehicles: number;
   avgSpeedKmh: number;
   congestionIndex: number; // 0 - 100%
-  co2SavedTonsToday: number;
   activeAiAgents: number;
   emergencyCorridorsActive: number;
   signalOptimizationEfficiency: number; // %
@@ -111,12 +117,14 @@ export interface IncidentItem {
   location: string;
   intersectionId: string;
   severity: 'critical' | 'high' | 'medium' | 'low';
-  category: 'vehicle_breakdown' | 'accident' | 'signal_fault' | 'weather_hazard' | 'debris' | 'pedestrian_hazard';
+  category: 'vehicle_breakdown' | 'accident' | 'signal_fault' | 'weather_hazard' | 'debris' | 'pedestrian_hazard' | 'road_obstruction' | 'protest' | 'flooding' | 'road_damage' | 'railway_delay' | 'other';
   reportedAt: string;
   status: 'detected' | 'verifying' | 'responding' | 'resolved';
   aiActionTaken: string;
   impactDelayMinutes: number;
   coordinates: { x: number; y: number };
+  source?: 'Citizen' | 'Camera observation' | 'External feed' | 'Weather' | 'Operator' | 'Simulation';
+  isDemo?: boolean;
 }
 
 export interface AIAgentNode {
@@ -128,7 +136,6 @@ export interface AIAgentNode {
   roleDescription: string;
   decisionsMadeToday: number;
   latencyMs: number;
-  accuracyRate: number;
   lastDecisionTime: string;
 }
 
@@ -139,7 +146,6 @@ export interface AIAgentLog {
   timestamp: string;
   topic: string;
   message: string;
-  confidence: number;
   type: 'info' | 'action' | 'warning' | 'negotiation';
 }
 
@@ -161,14 +167,14 @@ export interface CongestionRiskZone {
 export interface CitizenReport {
   id: string;
   reportNumber: string;
-  category: 'traffic_light_broken' | 'hazard' | 'pothole' | 'accident' | 'congestion_spike';
+  category: 'Accident' | 'Heavy Traffic' | 'Road Obstruction' | 'Vehicle Breakdown' | 'Protest / Gathering' | 'Flooding / Waterlogging' | 'Road Damage' | 'Signal Failure' | 'Railway Crossing Delay' | 'Other';
   locationName: string;
   description: string;
   submittedAt: string;
-  status: 'received' | 'ai_verified' | 'dispatched' | 'resolved';
-  upvotes: number;
-  citizenName: string;
-  aiVerificationConfidence: number;
+  status: 'SUBMITTED' | 'UNDER REVIEW' | 'VERIFIED' | 'REJECTED';
+  photoEvidence: boolean;
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  reporterContact?: string;
 }
 
 export interface SimulationConfig {

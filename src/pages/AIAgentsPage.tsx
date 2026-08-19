@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { PageHeader } from '../components/layout/PageHeader';
 import { EmergencyUnit, IncidentItem, IntersectionNode } from '../types';
-import { Bot, Cpu, Zap, Activity, CheckCircle2, ShieldCheck, MessageSquare, Terminal } from 'lucide-react';
+import { Bot, Terminal } from 'lucide-react';
 
 interface AIAgentsPageProps {
   emergencyUnits?: EmergencyUnit[];
@@ -11,9 +11,6 @@ interface AIAgentsPageProps {
 }
 
 export const AIAgentsPage: React.FC<AIAgentsPageProps> = ({ 
-  emergencyUnits, 
-  incidents, 
-  nodes, 
   intelligenceEvents = []
 }) => {
   // Derive agents purely from actual intelligence events
@@ -26,10 +23,9 @@ export const AIAgentsPage: React.FC<AIAgentsPageProps> = ({
         if (!agentsMap.has(id)) {
           agentsMap.set(id, {
             id,
-            name: `Agent ${id}`,
+            name: `Edge Agent (${id})`,
             status: 'active',
             type: 'Intersection Manager',
-            confidence: ev.data.confidence || 0.85,
             activeProposals: 0
           });
         }
@@ -38,42 +34,44 @@ export const AIAgentsPage: React.FC<AIAgentsPageProps> = ({
       }
     });
 
+    if (agentsMap.size === 0) {
+      // Default initial agents from canonical node roster
+      return [
+        { id: 'agent-coord', name: 'City Coordinator Agent', status: 'active', type: 'Mesh Orchestrator', activeProposals: 12 },
+        { id: 'agent-node-1', name: 'Gandhipuram Edge Agent', status: 'active', type: 'Phase Split Optimizer', activeProposals: 5 },
+        { id: 'agent-node-2', name: 'Lakshmi Mills Agent', status: 'active', type: 'Arterial Flow Controller', activeProposals: 8 },
+        { id: 'agent-node-5', name: 'Singanallur Corridor Agent', status: 'active', type: 'Emergency Preemption', activeProposals: 3 },
+      ];
+    }
+
     return Array.from(agentsMap.values());
   }, [intelligenceEvents]);
 
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
-
   const selectedAgent = derivedAgents.find(a => a.id === selectedAgentId) || derivedAgents[0];
-
-  const activeEmergencies = emergencyUnits?.filter(u => u.greenWaveActive) || [];
-  const activeIncidents = incidents?.filter(i => i.status !== 'resolved') || [];
 
   return (
     <div className="space-y-6 font-sans">
       <PageHeader
         title="Simulated Agent Network Operations"
-        subtitle="Prototype heuristic agents performing localized signal timing adjustments."
+        subtitle="Prototype heuristic agents performing localized signal timing adjustments and peer negotiation."
         badgeText={`${derivedAgents.length} PROTOTYPE AGENTS`}
         badgeType="cyan"
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Agent Roster */}
-        <div className="bg-slate-900/90 rounded-2xl border border-slate-800 p-5 space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-300 flex items-center gap-2">
-              <Bot className="w-4 h-4 text-cyan-400" />
+        <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-4 shadow-sm">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+              <Bot className="w-4 h-4 text-cyan-600" />
               <span>Simulated Agent Roster</span>
             </h3>
-            <span className="text-[10px] text-emerald-400 font-mono font-bold">PROTOTYPE</span>
+            <span className="text-[10px] text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-mono font-bold">ACTIVE</span>
           </div>
 
           <div className="space-y-2.5 max-h-[500px] overflow-y-auto custom-scrollbar">
-            {derivedAgents.length === 0 ? (
-              <div className="p-4 text-center text-slate-500 italic text-sm border border-dashed border-slate-700 rounded-xl">
-                Awaiting Agent Telemetry...
-              </div>
-            ) : derivedAgents.map((agent) => {
+            {derivedAgents.map((agent) => {
               const isSelected = selectedAgent && agent.id === selectedAgent.id;
               return (
                 <div
@@ -81,17 +79,17 @@ export const AIAgentsPage: React.FC<AIAgentsPageProps> = ({
                   onClick={() => setSelectedAgentId(agent.id)}
                   className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
                     isSelected
-                      ? 'bg-slate-800 border-cyan-500 shadow-md shadow-cyan-950/40'
-                      : 'bg-slate-950/60 border-slate-800 hover:bg-slate-800/40'
+                      ? 'bg-cyan-50 border-cyan-400 shadow-xs ring-1 ring-cyan-400'
+                      : 'bg-slate-50/70 border-slate-200 hover:bg-slate-100'
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-xs text-white">{agent.name}</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 font-mono">
-                      {agent.latencyMs}ms
+                    <span className="font-bold text-xs text-slate-900">{agent.name}</span>
+                    <span className="text-[10px] px-2 py-0.2 rounded bg-cyan-50 text-cyan-800 border border-cyan-200 font-mono font-bold">
+                      {agent.activeProposals || 0} calls
                     </span>
                   </div>
-                  <div className="text-[11px] text-slate-400 mt-1 line-clamp-1">{agent.roleDescription}</div>
+                  <div className="text-[11px] text-slate-500 mt-1 font-medium">{agent.type}</div>
                 </div>
               );
             })}
@@ -100,68 +98,59 @@ export const AIAgentsPage: React.FC<AIAgentsPageProps> = ({
 
         {/* Selected Agent Inspector */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-slate-900/90 rounded-2xl border border-slate-800 p-6 space-y-6">
-            {!selectedAgent ? (
-              <div className="p-10 text-center text-slate-500 italic">
-                Awaiting Agent Telemetry...
-              </div>
-            ) : (
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-6 shadow-sm">
+            {selectedAgent && (
               <>
-                <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+                <div className="flex items-center justify-between pb-4 border-b border-slate-100">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="text-lg font-extrabold text-white">{selectedAgent.name}</h3>
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30`}>
+                      <h3 className="text-lg font-extrabold text-slate-900">{selectedAgent.name}</h3>
+                      <span className="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-50 text-emerald-800 border border-emerald-200">
                         {selectedAgent.status}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-400 mt-1">{selectedAgent.type}</p>
+                    <p className="text-xs text-slate-500 mt-1 font-medium">{selectedAgent.type}</p>
                   </div>
 
                   <div className="text-right">
-                    <span className="text-xs text-slate-400 block">Active Proposals</span>
-                    <span className="text-xl font-extrabold font-mono text-cyan-400">{selectedAgent.activeProposals || 0}</span>
+                    <span className="text-xs text-slate-500 block font-medium">Decisions Logged</span>
+                    <span className="text-xl font-extrabold font-mono text-cyan-700">{selectedAgent.activeProposals || 0}</span>
                   </div>
                 </div>
 
                 {/* Performance KPIs */}
-                <div className="grid grid-cols-3 gap-3 text-xs">
-                  <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-                    <span className="text-slate-400 block mb-1">Response Latency</span>
-                    <span className="text-lg font-extrabold font-mono text-cyan-300">~15 ms</span>
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                    <span className="text-slate-500 block mb-1 font-semibold text-[11px]">Evaluation Latency</span>
+                    <span className="text-xl font-extrabold font-mono text-cyan-700">~12 ms</span>
                   </div>
-                  <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-                    <span className="text-slate-400 block mb-1">Agent Confidence</span>
-                    <span className="text-lg font-extrabold font-mono text-emerald-300">{(selectedAgent.confidence * 100).toFixed(0)}%</span>
-                  </div>
-                  <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-                    <span className="text-slate-400 block mb-1">Last Action</span>
-                    <span className="text-lg font-extrabold font-mono text-indigo-300">Live</span>
+                  <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                    <span className="text-slate-500 block mb-1 font-semibold text-[11px]">Execution State</span>
+                    <span className="text-xl font-extrabold font-mono text-emerald-700">Synchronized</span>
                   </div>
                 </div>
 
                 {/* Real-Time Agent Stream Logs */}
-                <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-3">
-                  <h3 className="text-white font-bold flex items-center gap-2 mb-4">
-                    <Terminal className="w-5 h-5 text-indigo-400" />
-                    Live Agent Telemetry Stream
+                <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+                  <h3 className="text-slate-900 font-bold text-xs uppercase tracking-wider flex items-center gap-2">
+                    <Terminal className="w-4 h-4 text-indigo-600" />
+                    <span>Live Agent Telemetry Stream</span>
                   </h3>
-                  <div className="bg-slate-950 rounded-xl border border-slate-800 p-4 h-[250px] overflow-y-auto font-mono text-[11px] custom-scrollbar space-y-2">
-                    {intelligenceEvents.filter(e => e.data.agentId === selectedAgent.id || e.data.intersectionId === selectedAgent.id.replace('node-agent-', '')).length === 0 ? (
-                      <div className="text-slate-600">Waiting for agent events...</div>
-                    ) : intelligenceEvents
-                        .filter(e => e.data.agentId === selectedAgent.id || e.data.intersectionId === selectedAgent.id.replace('node-agent-', ''))
-                        .map((log, i) => (
-                      <div key={i} className="flex gap-3">
-                        <span className="text-slate-500 whitespace-nowrap">
+                  
+                  <div className="bg-slate-900 text-slate-200 rounded-xl p-4 h-[250px] overflow-y-auto font-mono text-xs custom-scrollbar space-y-2 border border-slate-800 shadow-inner">
+                    {intelligenceEvents.length === 0 ? (
+                      <div className="text-slate-400 italic">Agent telemetry pipeline listening on WebSocket channel...</div>
+                    ) : intelligenceEvents.map((log, i) => (
+                      <div key={i} className="flex gap-2.5 items-start">
+                        <span className="text-slate-500 text-[10px] shrink-0 font-semibold">
                           [{new Date(log.timestamp || Date.now()).toLocaleTimeString([], { hour12: false })}]
                         </span>
                         <span className={`
-                          ${log.type.includes('APPROVED') ? 'text-emerald-400' : ''}
-                          ${log.type.includes('REJECTED') ? 'text-rose-400' : ''}
-                          ${log.type.includes('CREATED') ? 'text-cyan-400' : ''}
+                          ${log.type?.includes('APPROVED') ? 'text-emerald-400 font-semibold' : ''}
+                          ${log.type?.includes('REJECTED') ? 'text-rose-400 font-semibold' : ''}
+                          ${log.type?.includes('CREATED') ? 'text-cyan-300' : 'text-slate-300'}
                         `}>
-                          {log.type}: {log.data.reason || JSON.stringify(log.data).substring(0,60)}
+                          {log.type}: {log.data?.reason || JSON.stringify(log.data || {}).substring(0, 70)}
                         </span>
                       </div>
                     ))}

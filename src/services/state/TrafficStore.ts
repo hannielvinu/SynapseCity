@@ -239,7 +239,8 @@ export class TrafficStore extends EventEmitter {
                 unit.callsign,
                 unit.pathNodeIds,
                 unit.etaSeconds,
-                `Emergency dispatch: ${unit.callsign}`
+                `Emergency dispatch: ${unit.callsign}`,
+                unit.routingFactors
               );
               // Activate the corridor through SafetyValidator
               this.corridorManager.activateCorridor(corridor.id, this.currentSnapshot);
@@ -253,8 +254,11 @@ export class TrafficStore extends EventEmitter {
         case "RESOLVE_INCIDENT":
           engine.resolveIncident(command.incidentId);
           break;
-        case "ADD_REPORT":
+        case "SUBMIT_CITIZEN_REPORT":
           engine.addCitizenReport(command.report);
+          break;
+        case "VERIFY_CITIZEN_REPORT":
+          engine.verifyCitizenReport(command.reportId);
           break;
         case "UPDATE_CONFIG":
           engine.updateConfig(command.config || {});

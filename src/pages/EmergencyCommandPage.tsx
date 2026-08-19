@@ -12,22 +12,18 @@ interface EmergencyCommandPageProps {
   corridors?: any[];
 }
 
-const statusConfig: Record<string, { color: string; icon: React.ReactNode; label: string }> = {
-  PREPARING: { color: 'amber', icon: <Clock className="w-4 h-4" />, label: 'Preparing' },
-  ACTIVE: { color: 'rose', icon: <Siren className="w-4 h-4" />, label: 'Active' },
-  RESTORING: { color: 'cyan', icon: <Route className="w-4 h-4" />, label: 'Restoring' },
-  COMPLETED: { color: 'emerald', icon: <CheckCircle2 className="w-4 h-4" />, label: 'Completed' },
-  CANCELLED: { color: 'slate', icon: <XCircle className="w-4 h-4" />, label: 'Cancelled' },
-  FAILED: { color: 'rose', icon: <AlertTriangle className="w-4 h-4" />, label: 'Failed' },
+const statusConfig: Record<string, { badgeClass: string; icon: React.ReactNode; label: string }> = {
+  PREPARING: { badgeClass: 'bg-amber-50 text-amber-800 border-amber-200', icon: <Clock className="w-4 h-4 text-amber-600" />, label: 'Preparing' },
+  ACTIVE: { badgeClass: 'bg-rose-50 text-rose-800 border-rose-200', icon: <Siren className="w-4 h-4 text-rose-600" />, label: 'Active' },
+  RESTORING: { badgeClass: 'bg-cyan-50 text-cyan-800 border-cyan-200', icon: <Route className="w-4 h-4 text-cyan-600" />, label: 'Restoring' },
+  COMPLETED: { badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-200', icon: <CheckCircle2 className="w-4 h-4 text-emerald-600" />, label: 'Completed' },
+  CANCELLED: { badgeClass: 'bg-slate-100 text-slate-700 border-slate-200', icon: <XCircle className="w-4 h-4 text-slate-500" />, label: 'Cancelled' },
+  FAILED: { badgeClass: 'bg-rose-50 text-rose-800 border-rose-200', icon: <AlertTriangle className="w-4 h-4 text-rose-600" />, label: 'Failed' },
 };
 
 export const EmergencyCommandPage: React.FC<EmergencyCommandPageProps> = (props) => {
-  const activeCorridors = (props.corridors || []).filter(c => 
-    c.status === 'PREPARING' || c.status === 'ACTIVE' || c.status === 'RESTORING'
-  );
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-sans">
       <PageHeader
         title="Smart Emergency Corridor Command"
         subtitle="Simulated green-wave corridor dispatch with SafetyValidator-protected signal preemption."
@@ -37,52 +33,74 @@ export const EmergencyCommandPage: React.FC<EmergencyCommandPageProps> = (props)
 
       {/* Corridor Lifecycle Panel */}
       {(props.corridors || []).length > 0 && (
-        <div className="bg-slate-900/90 rounded-2xl border border-rose-500/20 p-5 space-y-4">
-          <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-300 flex items-center gap-2">
-            <Route className="w-4 h-4 text-rose-400" />
-            <span>Emergency Corridor Lifecycle</span>
-            <span className="text-[9px] px-2 py-0.5 rounded bg-rose-500/10 text-rose-300 border border-rose-500/30 font-mono">
+        <div className="bg-white rounded-2xl border border-rose-200 p-5 space-y-4 shadow-sm">
+          <div className="flex items-center justify-between pb-2 border-b border-rose-100">
+            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-900 flex items-center gap-2">
+              <Route className="w-4 h-4 text-rose-600" />
+              <span>Emergency Corridor Lifecycle</span>
+            </h3>
+            <span className="text-[10px] px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200 font-mono font-bold">
               SIMULATED CORRIDOR
             </span>
-          </h3>
+          </div>
 
           <div className="space-y-3">
             {(props.corridors || []).map((corridor: any) => {
               const cfg = statusConfig[corridor.status] || statusConfig.PREPARING;
               return (
-                <div key={corridor.id} className={`p-4 rounded-xl border bg-slate-950 border-${cfg.color}-500/20`}>
+                <div key={corridor.id} className="p-4 rounded-xl border border-slate-200 bg-slate-50/70">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <span className={`text-${cfg.color}-400`}>{cfg.icon}</span>
-                      <span className="font-bold text-xs text-white">{corridor.callsign}</span>
+                      {cfg.icon}
+                      <span className="font-bold text-sm text-slate-900">{corridor.callsign}</span>
                     </div>
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-${cfg.color}-500/20 text-${cfg.color}-300 border border-${cfg.color}-500/30`}>
+                    <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold uppercase border ${cfg.badgeClass}`}>
                       {cfg.label}
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[11px]">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                     <div>
-                      <span className="text-slate-400 block">Route</span>
-                      <span className="text-slate-200 font-mono">{corridor.route?.join(' → ') || 'N/A'}</span>
+                      <span className="text-slate-500 block text-[10px] font-medium">Route</span>
+                      <span className="text-slate-900 font-mono font-semibold">{corridor.route?.join(' → ') || 'N/A'}</span>
                     </div>
                     <div>
-                      <span className="text-slate-400 block">Affected Intersections</span>
-                      <span className="text-slate-200 font-mono">{corridor.metrics?.totalIntersections || 0}</span>
+                      <span className="text-slate-500 block text-[10px] font-medium">Intersections</span>
+                      <span className="text-slate-900 font-mono font-semibold">{corridor.metrics?.totalIntersections || 0}</span>
                     </div>
                     <div>
-                      <span className="text-slate-400 block">Estimated ETA</span>
-                      <span className="text-cyan-300 font-mono font-bold">{corridor.currentEtaSeconds || corridor.estimatedEtaSeconds || 0}s</span>
+                      <span className="text-slate-500 block text-[10px] font-medium">Estimated ETA</span>
+                      <span className="text-cyan-800 font-mono font-bold">{corridor.currentEtaSeconds || corridor.estimatedEtaSeconds || 0}s</span>
                     </div>
                     <div>
-                      <span className="text-slate-400 block">Intersections Cleared</span>
-                      <span className="text-emerald-300 font-mono font-bold">{corridor.metrics?.intersectionsCleared || 0} / {corridor.metrics?.totalIntersections || 0}</span>
+                      <span className="text-slate-500 block text-[10px] font-medium">Intersections Cleared</span>
+                      <span className="text-emerald-700 font-mono font-bold">{corridor.metrics?.intersectionsCleared || 0} / {corridor.metrics?.totalIntersections || 0}</span>
                     </div>
                   </div>
+                  
+                  {corridor.routingFactors && (
+                    <div className="mt-3 p-3 bg-white border border-slate-200 rounded-lg text-xs space-y-1">
+                      <div className="text-slate-600 font-bold mb-1 border-b border-slate-100 pb-1 text-[11px]">Corridor Scoring Factors</div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="flex justify-between"><span className="text-slate-500">Base Travel Time:</span> <span className="text-slate-800 font-mono">{Math.floor(corridor.routingFactors.baseTravelTime)}s</span></div>
+                        <div className="flex justify-between"><span className="text-slate-500">Traffic Penalty:</span> <span className="text-amber-700 font-mono font-bold">+{Math.floor(corridor.routingFactors.congestionPenalty)}s</span></div>
+                        <div className="flex justify-between"><span className="text-slate-500">Incident Penalty:</span> 
+                          <span className={corridor.routingFactors.incidentPenalty > 0 ? "text-rose-700 font-mono font-bold" : "text-emerald-700 font-mono"}>
+                            {corridor.routingFactors.incidentPenalty > 0 ? `+${corridor.routingFactors.incidentPenalty}s` : 'NONE'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between"><span className="text-slate-500">Weather Penalty:</span> 
+                          <span className={corridor.routingFactors.weatherPenalty > 0 ? "text-amber-700 font-mono font-bold" : "text-slate-500 font-mono"}>
+                            {corridor.routingFactors.weatherPenalty > 0 ? `+${corridor.routingFactors.weatherPenalty}s` : 'UNAVAILABLE'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {corridor.status === 'COMPLETED' && corridor.metrics?.timeSavedSeconds > 0 && (
-                    <div className="mt-3 p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-[11px] text-emerald-300">
-                      Corridor completed. Estimated time saved: {corridor.metrics.timeSavedSeconds}s
+                    <div className="mt-3 p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-800 font-semibold">
+                      Corridor completed. MEASURED IN DIGITAL TWIN: {corridor.metrics.timeSavedSeconds}s saved.
                     </div>
                   )}
                 </div>
@@ -101,4 +119,3 @@ export const EmergencyCommandPage: React.FC<EmergencyCommandPageProps> = (props)
     </div>
   );
 };
-
